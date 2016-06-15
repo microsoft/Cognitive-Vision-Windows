@@ -69,8 +69,7 @@ Build the sample
 4.  Start Microsoft Visual Studio 2015 and select `File > Open >
     Project/Solution`.
 
-5.  Starting in the folder where you clone the repository, go to `Vision > Windows
-    > Sample-WPF` Folder.
+5.  Starting in the folder where you clone the repository, go to `Vision > Windows > Sample-WPF` Folder.
 
 6.  Double-click the Visual Studio 2015 Solution (.sln) file
     VisionAPI-WPF-Samples.
