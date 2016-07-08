@@ -63,6 +63,16 @@ namespace Microsoft.ProjectOxford.Vision
         protected virtual string ServiceHost => SERVICE_HOST;
 
         /// <summary>
+        /// Default timeout for calls
+        /// </summary>
+        private const int DEFAULT_TIMEOUT = 2 * 60 * 1000; // 2 minutes timeout
+
+        /// <summary>
+        /// Default timeout for calls, overridable by subclasses
+        /// </summary>
+        protected virtual int DefaultTimeout => DEFAULT_TIMEOUT;
+
+        /// <summary>
         /// The analyze query
         /// </summary>
         private const string AnalyzeQuery = "analyze";
@@ -451,12 +461,29 @@ namespace Microsoft.ProjectOxford.Vision
                     setHeadersCallback(request);
                 }
 
-                var response = await Task.Factory.FromAsync<WebResponse>(
+                var getResponseAsync = Task.Factory.FromAsync<WebResponse>(
                     request.BeginGetResponse,
                     request.EndGetResponse,
                     null);
 
-                return this.ProcessAsyncResponse<TResponse>(response as HttpWebResponse);
+                await Task.WhenAny(getResponseAsync, Task.Delay(DefaultTimeout));
+
+                //Abort request if timeout has expired
+                if (!getResponseAsync.IsCompleted)
+                {
+                    request.Abort();
+                }
+
+                return this.ProcessAsyncResponse<TResponse>(getResponseAsync.Result as HttpWebResponse);
+            }
+            catch (AggregateException ae)
+            {
+                ae.Handle(e =>
+                {
+                    this.HandleException(e);
+                    return true;
+                });
+                return default(TResponse);
             }
             catch (Exception e)
             {
@@ -533,12 +560,29 @@ namespace Microsoft.ProjectOxford.Vision
                                                        });
 
                 var continueWebRequest = continueRequestAsyncState.WebRequest;
-                var response = await Task.Factory.FromAsync<WebResponse>(
-                                            continueWebRequest.BeginGetResponse,
-                                            continueWebRequest.EndGetResponse,
-                                            continueRequestAsyncState);
+                var getResponseAsync = Task.Factory.FromAsync<WebResponse>(
+                    continueWebRequest.BeginGetResponse,
+                    continueWebRequest.EndGetResponse,
+                    continueRequestAsyncState);
 
-                return this.ProcessAsyncResponse<TResponse>(response as HttpWebResponse);
+                await Task.WhenAny(getResponseAsync, Task.Delay(DefaultTimeout));
+
+                //Abort request if timeout has expired
+                if (!getResponseAsync.IsCompleted)
+                {
+                    request.Abort();
+                }
+
+                return this.ProcessAsyncResponse<TResponse>(getResponseAsync.Result as HttpWebResponse);
+            }
+            catch (AggregateException ae)
+            {
+                ae.Handle(e =>
+                {
+                    this.HandleException(e);
+                    return true;
+                });
+                return default(TResponse);
             }
             catch (Exception e)
             {
