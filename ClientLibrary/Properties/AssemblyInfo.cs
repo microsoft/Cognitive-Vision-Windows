@@ -36,7 +36,7 @@ using System.Reflection;
 using System.Resources;
 
 [assembly: AssemblyTitle("Microsoft.ProjectOxford.Vision")]
-[assembly: AssemblyDescription("Microsoft Project Oxford Vision API Client Library")]
+[assembly: AssemblyDescription("Microsoft Cognitive Service Vision API Client Library")]
 [assembly: AssemblyCompany("Microsoft")]
 [assembly: AssemblyProduct("Microsoft ProjectOxford")]
 [assembly: AssemblyCopyright("Copyright © 2016 Microsoft")]
