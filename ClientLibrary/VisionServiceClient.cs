@@ -55,12 +55,12 @@ namespace Microsoft.ProjectOxford.Vision
         /// <summary>
         /// The service host
         /// </summary>
-        private const string SERVICE_HOST = "https://api.projectoxford.ai/vision/v1.0";
+        private const string DEFAULT_API_ROOT = "https://api.projectoxford.ai/vision/v1.0";
 
         /// <summary>
         /// Host root, overridable by subclasses, intended for testing.
         /// </summary>
-        protected virtual string ServiceHost => SERVICE_HOST;
+        protected virtual string ServiceHost => _apiRoot;
 
         /// <summary>
         /// The analyze query
@@ -103,11 +103,24 @@ namespace Microsoft.ProjectOxford.Vision
         private string _subscriptionKey;
 
         /// <summary>
+        /// The root URI for Vision API
+        /// </summary>
+        private readonly string _apiRoot;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="VisionServiceClient"/> class.
         /// </summary>
-        /// <param name="_subscriptionKey">The subscription key.</param>
-        public VisionServiceClient(string subscriptionKey)
+        /// <param name="subscriptionKey">The subscription key.</param>
+        public VisionServiceClient(string subscriptionKey) : this(subscriptionKey, DEFAULT_API_ROOT) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VisionServiceClient"/> class.
+        /// </summary>
+        /// <param name="subscriptionKey">The subscription key.</param>
+        /// <param name="apiRoot">Root URI for the service endpoint.</param>
+        public VisionServiceClient(string subscriptionKey, string apiRoot)
         {
+            _apiRoot = apiRoot?.TrimEnd('/');
             _subscriptionKey = subscriptionKey;
         }
 

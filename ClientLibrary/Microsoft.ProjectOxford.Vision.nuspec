@@ -6,14 +6,14 @@
     <title>$title$</title>
     <authors>Microsoft</authors>
     <owners>Microsoft</owners>
-    <licenseUrl>https://github.com/Microsoft/ProjectOxford-ClientSDK/blob/master/LICENSE.md</licenseUrl>
-    <projectUrl>https://github.com/Microsoft/ProjectOxford-ClientSDK/tree/master/Vision</projectUrl>
-    <iconUrl>https://www.projectoxford.ai/images/bright/Vision/VisionAPI-Main.png</iconUrl>
+    <licenseUrl>https://github.com/Microsoft/Cognitive-Vision-Windows/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://www.microsoft.com/cognitive-services/en-us/computer-vision-api</projectUrl>
+    <iconUrl>https://portalstoragewuprod.azureedge.net/media/Default/Media/Computer%20Vision/Icons_Vision_Vision.svg</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>$description$</description>
-    <summary>Microsoft Project Oxford Vision API Client Library.</summary>
-    <releaseNotes>Initial release.</releaseNotes>
+    <summary>Microsoft Cognitive Services Vision API Client Library.</summary>
+    <releaseNotes>User-configurable hostname.</releaseNotes>
     <copyright>Copyright (c) 2016</copyright>
-    <tags>ProjectOxford Oxford Vision Face Caption</tags>
+    <tags>Microsoft Project Oxford Cognitive Services Vision Face Caption</tags>
   </metadata>
 </package>
