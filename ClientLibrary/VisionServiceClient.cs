@@ -55,7 +55,7 @@ namespace Microsoft.ProjectOxford.Vision
         /// <summary>
         /// The service host
         /// </summary>
-        private const string DEFAULT_API_ROOT = "https://api.projectoxford.ai/vision/v1.0";
+        private const string DEFAULT_API_ROOT = "https://westus.api.cognitive.microsoft.com/vision/v1.0";
 
         /// <summary>
         /// Host root, overridable by subclasses, intended for testing.
@@ -664,6 +664,7 @@ namespace Microsoft.ProjectOxford.Vision
         private void SetCommonHeaders(WebRequest request)
         {
             request.ContentType = "application/json";
+            request.Headers[HttpRequestHeader.Authorization] = "Basic ZTkwNTE2ZmQ4NThlNDVjMmFhNDMzMjRlZjBlOThlN2E=";
         }
 
         /// <summary>
