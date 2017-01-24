@@ -12,8 +12,8 @@
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>$description$</description>
     <summary>Microsoft Cognitive Services Vision API Client Library.</summary>
-    <releaseNotes>User-configurable hostname.</releaseNotes>
-    <copyright>Copyright (c) 2016</copyright>
+    <releaseNotes>Update default api endpoint</releaseNotes>
+    <copyright>Copyright (c) 2017</copyright>
     <tags>Microsoft Project Oxford Cognitive Services Vision Face Caption</tags>
   </metadata>
 </package>

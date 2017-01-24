@@ -39,7 +39,7 @@ using System.Resources;
 [assembly: AssemblyDescription("Microsoft Cognitive Service Vision API Client Library")]
 [assembly: AssemblyCompany("Microsoft")]
 [assembly: AssemblyProduct("Microsoft ProjectOxford")]
-[assembly: AssemblyCopyright("Copyright © 2016 Microsoft")]
+[assembly: AssemblyCopyright("Copyright © 2017 Microsoft")]
 [assembly: AssemblyTrademark("Microsoft")]
 [assembly: NeutralResourcesLanguage("en")]
 
