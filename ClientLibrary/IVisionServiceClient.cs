@@ -5,7 +5,7 @@
 // Microsoft Cognitive Services (formerly Project Oxford): https://www.microsoft.com/cognitive-services
 //
 // Microsoft Cognitive Services (formerly Project Oxford) GitHub:
-// https://github.com/Microsoft/Cognitive-Vision-Windows
+// https://github.com/Microsoft/ProjectOxford-ClientSDK
 //
 // Copyright (c) Microsoft Corporation
 // All rights reserved.
@@ -166,6 +166,12 @@ namespace Microsoft.ProjectOxford.Vision
         /// <param name="detectOrientation">if set to <c>true</c> [detect orientation].</param>
         /// <returns>The OCR object.</returns>
         Task<OcrResults> RecognizeTextAsync(Stream imageStream, string languageCode = LanguageCodes.AutoDetect, bool detectOrientation = true);
+
+        Task<HandwritingOCROperation> RecognizeHandwritingTextAsync(string imageUrl, string languageCode = LanguageCodes.AutoDetect, bool detectOrientation = true);
+
+        Task<HandwritingOCROperation> RecognizeHandwritingTextAsync(Stream imageStream, string languageCode = LanguageCodes.AutoDetect, bool detectOrientation = true);
+
+        Task<HandwritingOCROperationResult> CheckRecognizeHandWritingTextStatus(string opeartionLocation);
 
         /// <summary>
         /// Gets the tags associated with an image.

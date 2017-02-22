@@ -49,6 +49,11 @@
     <Compile Include="Contract\Description.cs" />
     <Compile Include="Contract\Face.cs" />
     <Compile Include="Contract\FaceRectangle.cs" />
+    <Compile Include="Contract\HandwritingOCRLine.cs" />
+    <Compile Include="Contract\HandwritingOCROperation.cs" />
+    <Compile Include="Contract\HandwritingOCROperationResult.cs" />
+    <Compile Include="Contract\HandwritingOCRResult.cs" />
+    <Compile Include="Contract\HandwritingOCRWord.cs" />
     <Compile Include="Contract\ImageType.cs" />
     <Compile Include="Contract\Line.cs" />
     <Compile Include="Contract\Metadata.cs" />

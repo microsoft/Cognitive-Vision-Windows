@@ -5,7 +5,7 @@
 // Microsoft Cognitive Services (formerly Project Oxford): https://www.microsoft.com/cognitive-services
 //
 // Microsoft Cognitive Services (formerly Project Oxford) GitHub:
-// https://github.com/Microsoft/Cognitive-Vision-Windows
+// https://github.com/Microsoft/ProjectOxford-ClientSDK
 //
 // Copyright (c) Microsoft Corporation
 // All rights reserved.
@@ -55,22 +55,12 @@ namespace Microsoft.ProjectOxford.Vision
         /// <summary>
         /// The service host
         /// </summary>
-        private const string DEFAULT_API_ROOT = "https://westus.api.cognitive.microsoft.com/vision/v1.0";
+        private const string SERVICE_HOST = "https://api.projectoxford.ai/vision/v1.0";
 
         /// <summary>
         /// Host root, overridable by subclasses, intended for testing.
         /// </summary>
-        protected virtual string ServiceHost => _apiRoot;
-
-        /// <summary>
-        /// Default timeout for calls
-        /// </summary>
-        private const int DEFAULT_TIMEOUT = 2 * 60 * 1000; // 2 minutes timeout
-
-        /// <summary>
-        /// Default timeout for calls, overridable by subclasses
-        /// </summary>
-        protected virtual int DefaultTimeout => DEFAULT_TIMEOUT;
+        protected virtual string ServiceHost => SERVICE_HOST;
 
         /// <summary>
         /// The analyze query
@@ -113,24 +103,11 @@ namespace Microsoft.ProjectOxford.Vision
         private string _subscriptionKey;
 
         /// <summary>
-        /// The root URI for Vision API
-        /// </summary>
-        private readonly string _apiRoot;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="VisionServiceClient"/> class.
         /// </summary>
-        /// <param name="subscriptionKey">The subscription key.</param>
-        public VisionServiceClient(string subscriptionKey) : this(subscriptionKey, DEFAULT_API_ROOT) { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="VisionServiceClient"/> class.
-        /// </summary>
-        /// <param name="subscriptionKey">The subscription key.</param>
-        /// <param name="apiRoot">Root URI for the service endpoint.</param>
-        public VisionServiceClient(string subscriptionKey, string apiRoot)
+        /// <param name="_subscriptionKey">The subscription key.</param>
+        public VisionServiceClient(string subscriptionKey)
         {
-            _apiRoot = apiRoot?.TrimEnd('/');
             _subscriptionKey = subscriptionKey;
         }
 
@@ -145,7 +122,7 @@ namespace Microsoft.ProjectOxford.Vision
         {
             var visualFeatureEnums = visualFeatures?.Select(feature => (VisualFeature)Enum.Parse(typeof(VisualFeature), feature, true));
 
-            return await AnalyzeImageAsync(url, visualFeatureEnums).ConfigureAwait(false);
+            return await AnalyzeImageAsync(url, visualFeatureEnums);
         }
 
         /// <summary>
@@ -159,7 +136,7 @@ namespace Microsoft.ProjectOxford.Vision
         {
             var visualFeatureEnums = visualFeatures?.Select(feature => (VisualFeature)Enum.Parse(typeof(VisualFeature), feature, true));
 
-            return await AnalyzeImageAsync(imageStream, visualFeatureEnums).ConfigureAwait(false);
+            return await AnalyzeImageAsync(imageStream, visualFeatureEnums);
         }
 
         /// <summary>
@@ -174,7 +151,7 @@ namespace Microsoft.ProjectOxford.Vision
             dynamic request = new ExpandoObject();
             request.url = url;
 
-            return await AnalyzeImageAsync<ExpandoObject>(request, visualFeatures, details).ConfigureAwait(false);
+            return await AnalyzeImageAsync<ExpandoObject>(request, visualFeatures, details);
         }
 
         /// <summary>
@@ -186,7 +163,7 @@ namespace Microsoft.ProjectOxford.Vision
         /// <returns>The AnalysisResult object.</returns>
         public async Task<AnalysisResult> AnalyzeImageAsync(Stream imageStream, IEnumerable<VisualFeature> visualFeatures = null, IEnumerable<string> details = null)
         {
-            return await AnalyzeImageAsync<Stream>(imageStream, visualFeatures, details).ConfigureAwait(false);
+            return await AnalyzeImageAsync<Stream>(imageStream, visualFeatures, details);
         }
 
         /// <summary>
@@ -209,7 +186,7 @@ namespace Microsoft.ProjectOxford.Vision
 
             var request = WebRequest.Create(requestUrl.ToString());
 
-            return await this.SendAsync<T, AnalysisResult>("POST", body, request).ConfigureAwait(false);
+            return await this.SendAsync<T, AnalysisResult>("POST", body, request);
         }
 
         /// <summary>
@@ -221,7 +198,7 @@ namespace Microsoft.ProjectOxford.Vision
         /// <returns>The AnalysisInDomainResult object.</returns>
         public async Task<AnalysisInDomainResult> AnalyzeImageInDomainAsync(string url, Model model)
         {
-            return await AnalyzeImageInDomainAsync(url, model.Name).ConfigureAwait(false);
+            return await AnalyzeImageInDomainAsync(url, model.Name);
         }
 
         /// <summary>
@@ -233,7 +210,7 @@ namespace Microsoft.ProjectOxford.Vision
         /// <returns>The AnalysisInDomainResult object.</returns>
         public async Task<AnalysisInDomainResult> AnalyzeImageInDomainAsync(Stream imageStream, Model model)
         {
-            return await AnalyzeImageInDomainAsync(imageStream, model.Name).ConfigureAwait(false);
+            return await AnalyzeImageInDomainAsync(imageStream, model.Name);
         }
 
         /// <summary>
@@ -251,7 +228,7 @@ namespace Microsoft.ProjectOxford.Vision
             dynamic requestObject = new ExpandoObject();
             requestObject.url = url;
 
-            return await this.SendAsync<ExpandoObject, AnalysisInDomainResult>("POST", requestObject, request).ConfigureAwait(false);
+            return await this.SendAsync<ExpandoObject, AnalysisInDomainResult>("POST", requestObject, request);
         }
 
         /// <summary>
@@ -266,7 +243,7 @@ namespace Microsoft.ProjectOxford.Vision
             string requestUrl = string.Format("{0}/{1}/{2}/{3}?{4}={5}", ServiceHost, ModelsPart, modelName, AnalyzeQuery, _subscriptionKeyName, _subscriptionKey);
             var request = WebRequest.Create(requestUrl);
 
-            return await this.SendAsync<Stream, AnalysisInDomainResult>("POST", imageStream, request).ConfigureAwait(false);
+            return await this.SendAsync<Stream, AnalysisInDomainResult>("POST", imageStream, request);
         }
 
         /// <summary>
@@ -278,7 +255,7 @@ namespace Microsoft.ProjectOxford.Vision
             string requestUrl = string.Format("{0}/{1}?{2}={3}", ServiceHost, ModelsPart, _subscriptionKeyName, _subscriptionKey);
             var request = WebRequest.Create(requestUrl);
 
-            return await this.GetAsync<ModelResult>("GET", request).ConfigureAwait(false);
+            return await this.GetAsync<ModelResult>("GET", request);
         }
         /// <summary>
         /// 
@@ -295,7 +272,7 @@ namespace Microsoft.ProjectOxford.Vision
             dynamic requestObject = new ExpandoObject();
             requestObject.url = url;
 
-            return await this.SendAsync<ExpandoObject, AnalysisResult>("POST", requestObject, request).ConfigureAwait(false);
+            return await this.SendAsync<ExpandoObject, AnalysisResult>("POST", requestObject, request);
         }
 
         /// <summary>
@@ -309,7 +286,7 @@ namespace Microsoft.ProjectOxford.Vision
             string requestUrl = string.Format("{0}/{1}?{2}={3}&{4}={5}", ServiceHost, DescribeQuery, _maxCandidatesName, maxCandidates, _subscriptionKeyName, _subscriptionKey);
             var request = WebRequest.Create(requestUrl);
 
-            return await this.SendAsync<Stream, AnalysisResult>("POST", imageStream, request).ConfigureAwait(false);
+            return await this.SendAsync<Stream, AnalysisResult>("POST", imageStream, request);
         }
 
         /// <summary>
@@ -328,7 +305,7 @@ namespace Microsoft.ProjectOxford.Vision
             dynamic requestObject = new ExpandoObject();
             requestObject.url = url;
 
-            return await this.SendAsync<ExpandoObject, byte[]>("POST", requestObject, request).ConfigureAwait(false);
+            return await this.SendAsync<ExpandoObject, byte[]>("POST", requestObject, request);
         }
 
         /// <summary>
@@ -344,7 +321,7 @@ namespace Microsoft.ProjectOxford.Vision
             string requestUrl = string.Format("{0}/{1}?width={2}&height={3}&smartCropping={4}&{5}={6}", ServiceHost, ThumbnailsQuery, width, height, smartCropping, _subscriptionKeyName, _subscriptionKey);
             var request = WebRequest.Create(requestUrl);
 
-            return await this.SendAsync<Stream, byte[]>("POST", stream, request).ConfigureAwait(false);
+            return await this.SendAsync<Stream, byte[]>("POST", stream, request);
         }
 
         /// <summary>
@@ -362,7 +339,7 @@ namespace Microsoft.ProjectOxford.Vision
             dynamic requestObject = new ExpandoObject();
             requestObject.url = imageUrl;
 
-            return await this.SendAsync<ExpandoObject, OcrResults>("POST", requestObject, request).ConfigureAwait(false);
+            return await this.SendAsync<ExpandoObject, OcrResults>("POST", requestObject, request);
         }
 
         /// <summary>
@@ -377,7 +354,49 @@ namespace Microsoft.ProjectOxford.Vision
             string requestUrl = string.Format("{0}/ocr?language={1}&detectOrientation={2}&{3}={4}", ServiceHost, languageCode, detectOrientation, _subscriptionKeyName, _subscriptionKey);
             var request = WebRequest.Create(requestUrl);
 
-            return await this.SendAsync<Stream, OcrResults>("POST", imageStream, request).ConfigureAwait(false);
+            return await this.SendAsync<Stream, OcrResults>("POST", imageStream, request);
+        }
+
+        /// <summary>
+        /// Recognizes the handwriting text asynchronous.
+        /// </summary>
+        /// <param name="imageUrl">The image URL.</param>
+        /// <param name="languageCode">The language code.</param>
+        /// <param name="detectOrientation">if set to <c>true</c> [detect orientation].</param>
+        /// <returns>The OCR object.</returns>
+        public async Task<HandwritingOCROperation> RecognizeHandwritingTextAsync(string imageUrl, string languageCode = LanguageCodes.AutoDetect, bool detectOrientation = true)
+        {
+            string requestUrl = string.Format("{0}/recognizeText?handwriting=true&{1}={2}", ServiceHost, _subscriptionKeyName, _subscriptionKey);
+            var request = WebRequest.Create(requestUrl);
+
+            dynamic requestObject = new ExpandoObject();
+            requestObject.url = imageUrl;
+
+            return await this.SendAsync<ExpandoObject, HandwritingOCROperation>("POST", requestObject, request);
+        }
+
+        /// <summary>
+        /// Recognizes the handwriting text asynchronous.
+        /// </summary>
+        /// <param name="imageStream">The image stream.</param>
+        /// <param name="languageCode">The language code.</param>
+        /// <param name="detectOrientation">if set to <c>true</c> [detect orientation].</param>
+        /// <returns>The OCR object.</returns>
+        public async Task<HandwritingOCROperation> RecognizeHandwritingTextAsync(Stream imageStream, string languageCode = LanguageCodes.AutoDetect, bool detectOrientation = true)
+        {
+            string requestUrl = string.Format("{0}/recognizeText?handwriting=true&{1}={2}", ServiceHost, _subscriptionKeyName, _subscriptionKey);
+            var request = WebRequest.Create(requestUrl);
+
+            return await this.SendAsync<Stream, HandwritingOCROperation>("POST", imageStream, request);
+        }
+
+        public async Task<HandwritingOCROperationResult> CheckRecognizeHandWritingTextStatus(string opeartionLocation)
+        {
+            string requestUrl = string.Format("{0}/textOperations/{1}?{2}={3}", ServiceHost, opeartionLocation, _subscriptionKeyName, _subscriptionKey);
+            //string requestUrl = string.Format("{0}?{1}={2}", opeartionLocation, _subscriptionKeyName, _subscriptionKey);
+            var request = WebRequest.Create(requestUrl);
+
+            return await this.GetAsync<HandwritingOCROperationResult>("Get", request);
         }
 
         /// <summary>
@@ -390,7 +409,7 @@ namespace Microsoft.ProjectOxford.Vision
             string requestUrl = string.Format("{0}/tag?{1}={2}", ServiceHost, _subscriptionKeyName, _subscriptionKey);
             var request = WebRequest.Create(requestUrl);
 
-            return await this.SendAsync<Stream, AnalysisResult>("POST", imageStream, request).ConfigureAwait(false);
+            return await this.SendAsync<Stream, AnalysisResult>("POST", imageStream, request);
         }
 
         /// <summary>
@@ -406,7 +425,7 @@ namespace Microsoft.ProjectOxford.Vision
             dynamic requestObject = new ExpandoObject();
             requestObject.url = imageUrl;
 
-            return await this.SendAsync<ExpandoObject, AnalysisResult>("POST", requestObject, request).ConfigureAwait(false);
+            return await this.SendAsync<ExpandoObject, AnalysisResult>("POST", requestObject, request);
         }
 
         /// <summary>
@@ -474,29 +493,12 @@ namespace Microsoft.ProjectOxford.Vision
                     setHeadersCallback(request);
                 }
 
-                var getResponseAsync = Task.Factory.FromAsync<WebResponse>(
+                var response = await Task.Factory.FromAsync<WebResponse>(
                     request.BeginGetResponse,
                     request.EndGetResponse,
                     null);
 
-                await Task.WhenAny(getResponseAsync, Task.Delay(DefaultTimeout)).ConfigureAwait(false);
-
-                //Abort request if timeout has expired
-                if (!getResponseAsync.IsCompleted)
-                {
-                    request.Abort();
-                }
-
-                return this.ProcessAsyncResponse<TResponse>(getResponseAsync.Result as HttpWebResponse);
-            }
-            catch (AggregateException ae)
-            {
-                ae.Handle(e =>
-                {
-                    this.HandleException(e);
-                    return true;
-                });
-                return default(TResponse);
+                return this.ProcessAsyncResponse<TResponse>(response as HttpWebResponse);
             }
             catch (Exception e)
             {
@@ -570,32 +572,15 @@ namespace Microsoft.ProjectOxford.Vision
                                                            }
 
                                                            return requestAsyncState;
-                                                       }).ConfigureAwait(false);
+                                                       });
 
                 var continueWebRequest = continueRequestAsyncState.WebRequest;
-                var getResponseAsync = Task.Factory.FromAsync<WebResponse>(
-                    continueWebRequest.BeginGetResponse,
-                    continueWebRequest.EndGetResponse,
-                    continueRequestAsyncState);
+                var response = await Task.Factory.FromAsync<WebResponse>(
+                                            continueWebRequest.BeginGetResponse,
+                                            continueWebRequest.EndGetResponse,
+                                            continueRequestAsyncState);
 
-                await Task.WhenAny(getResponseAsync, Task.Delay(DefaultTimeout)).ConfigureAwait(false);
-
-                //Abort request if timeout has expired
-                if (!getResponseAsync.IsCompleted)
-                {
-                    request.Abort();
-                }
-
-                return this.ProcessAsyncResponse<TResponse>(getResponseAsync.Result as HttpWebResponse);
-            }
-            catch (AggregateException ae)
-            {
-                ae.Handle(e =>
-                {
-                    this.HandleException(e);
-                    return true;
-                });
-                return default(TResponse);
+                return this.ProcessAsyncResponse<TResponse>(response as HttpWebResponse);
             }
             catch (Exception e)
             {
@@ -624,7 +609,7 @@ namespace Microsoft.ProjectOxford.Vision
                         {
                             if (stream != null)
                             {
-                                if (webResponse.ContentType == "image/jpeg" || 
+                                if (webResponse.ContentType == "image/jpeg" ||
                                     webResponse.ContentType == "image/png")
                                 {
                                     using (MemoryStream ms = new MemoryStream())
@@ -636,10 +621,18 @@ namespace Microsoft.ProjectOxford.Vision
                                 else
                                 {
                                     string message = string.Empty;
+
+                                    //if (webResponse.Headers.AllKeys.Contains("Operation-Location"))
+                                    //{
+                                    //    //message = string.Format("{OperationId: {1}}", webResponse.Headers["Operation-Location"]);
+                                    //}
+                                    //else
+                                    //{
                                     using (StreamReader reader = new StreamReader(stream))
                                     {
                                         message = reader.ReadToEnd();
                                     }
+                                    //}
 
                                     JsonSerializerSettings settings = new JsonSerializerSettings();
                                     settings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
@@ -664,7 +657,6 @@ namespace Microsoft.ProjectOxford.Vision
         private void SetCommonHeaders(WebRequest request)
         {
             request.ContentType = "application/json";
-            request.Headers[HttpRequestHeader.Authorization] = "Basic ZTkwNTE2ZmQ4NThlNDVjMmFhNDMzMjRlZjBlOThlN2E=";
         }
 
         /// <summary>
@@ -714,7 +706,17 @@ namespace Microsoft.ProjectOxford.Vision
                                 errorObjectString = reader.ReadToEnd();
                             }
 
-                            ClientError errorCollection = JsonConvert.DeserializeObject<ClientError>(errorObjectString);
+                            ClientError errorCollection;
+
+                            errorCollection = JsonConvert.DeserializeObject<ClientError>(errorObjectString);
+
+                            if (errorCollection.Code == null && errorCollection.Message == null)
+                            {
+                                var errorType = new { Error = new ClientError() };
+                                var errorObj = JsonConvert.DeserializeAnonymousType(errorObjectString, errorType);
+                                errorCollection = errorObj.Error;
+                            }
+
                             if (errorCollection != null)
                             {
                                 throw new ClientException
