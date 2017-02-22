@@ -303,5 +303,33 @@ namespace VisionAPI_WPF_Samples
 
             Log(stringBuilder.ToString());
         }
+
+        /// <summary>
+        /// Log text from the given OCR results object.
+        /// </summary>
+        /// <param name="results">The OCR results.</param>
+        protected void LogOneOCRResult(HandwritingOCROperationResult results)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            if (results != null && results.RecognitionResult != null && results.RecognitionResult.Lines != null)
+            {
+                stringBuilder.Append("Text: ");
+                stringBuilder.AppendLine();
+                foreach (var line in results.RecognitionResult.Lines)
+                {
+                    foreach (var word in line.Words)
+                    {
+                        stringBuilder.Append(word.Text);
+                        stringBuilder.Append(" ");
+                    }
+
+                    stringBuilder.AppendLine();
+                    stringBuilder.AppendLine();
+                }
+            }
+
+            Log(stringBuilder.ToString());
+        }
     }
 }
