@@ -66,6 +66,9 @@
     <Compile Include="AnalyzeInDomainPage.xaml.cs">
       <DependentUpon>AnalyzeInDomainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="HandwritingOCRPage.xaml.cs">
+      <DependentUpon>HandwritingOCRPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ImageScenarioPage.cs" />
     <Compile Include="TagsPage.xaml.cs">
       <DependentUpon>TagsPage.xaml</DependentUpon>
@@ -109,6 +112,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="AnalyzeInDomainPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="HandwritingOCRPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
