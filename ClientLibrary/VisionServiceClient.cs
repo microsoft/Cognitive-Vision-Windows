@@ -387,7 +387,7 @@ namespace Microsoft.ProjectOxford.Vision
         /// <param name="languageCode">The language code.</param>
         /// <param name="detectOrientation">if set to <c>true</c> [detect orientation].</param>
         /// <returns>The OCR object.</returns>
-        public async Task<HandwritingOCROperation> CreateHandwritingOCROperationAsync(string imageUrl, string languageCode = LanguageCodes.AutoDetect, bool detectOrientation = true)
+        public async Task<HandwritingOCROperation> CreateHandwritingOCROperationAsync(string imageUrl)
         {
             string requestUrl = string.Format("{0}/recognizeText?handwriting=true&{1}={2}", ServiceHost, _subscriptionKeyName, _subscriptionKey);
             var request = WebRequest.Create(requestUrl);
@@ -405,7 +405,7 @@ namespace Microsoft.ProjectOxford.Vision
         /// <param name="languageCode">The language code.</param>
         /// <param name="detectOrientation">if set to <c>true</c> [detect orientation].</param>
         /// <returns>The OCR object.</returns>
-        public async Task<HandwritingOCROperation> CreateHandwritingOCROperationAsync(Stream imageStream, string languageCode = LanguageCodes.AutoDetect, bool detectOrientation = true)
+        public async Task<HandwritingOCROperation> CreateHandwritingOCROperationAsync(Stream imageStream)
         {
             string requestUrl = string.Format("{0}/recognizeText?handwriting=true&{1}={2}", ServiceHost, _subscriptionKeyName, _subscriptionKey);
             var request = WebRequest.Create(requestUrl);

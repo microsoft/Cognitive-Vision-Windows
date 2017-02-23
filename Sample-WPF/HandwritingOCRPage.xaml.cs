@@ -29,7 +29,6 @@ namespace VisionAPI_WPF_Samples
             InitializeComponent();
             this.PreviewImage = _imagePreview;
             this.URLTextBox = _urlTextBox;
-            this.languageComboBox.ItemsSource = GetSupportedLanguages();
         }
 
         /// <summary>
@@ -38,11 +37,11 @@ namespace VisionAPI_WPF_Samples
         /// <param name="imageFilePath">The image file path.</param>
         /// <param name="language">The language code to recognize for</param>
         /// <returns></returns>
-        private async Task<HandwritingOCROperationResult> UploadAndRecognizeImage(string imageFilePath, string language)
+        private async Task<HandwritingOCROperationResult> UploadAndRecognizeImage(string imageFilePath)
         {
             using (Stream imageFileStream = File.OpenRead(imageFilePath))
             {
-                return await Recognize(async (VisionServiceClient VisionServiceClient) => await VisionServiceClient.CreateHandwritingOCROperationAsync(imageFileStream, language));
+                return await Recognize(async (VisionServiceClient VisionServiceClient) => await VisionServiceClient.CreateHandwritingOCROperationAsync(imageFileStream));
             }
         }
 
@@ -52,9 +51,9 @@ namespace VisionAPI_WPF_Samples
         /// <param name="imageUrl">The url to perform recognition on</param>
         /// <param name="language">The language code to recognize for</param>
         /// <returns></returns>
-        private async Task<HandwritingOCROperationResult> RecognizeUrl(string imageUrl, string language)
+        private async Task<HandwritingOCROperationResult> RecognizeUrl(string imageUrl)
         {
-            return await Recognize(async (VisionServiceClient VisionServiceClient) => await VisionServiceClient.CreateHandwritingOCROperationAsync(imageUrl, language));
+            return await Recognize(async (VisionServiceClient VisionServiceClient) => await VisionServiceClient.CreateHandwritingOCROperationAsync(imageUrl));
         }
 
         private async Task<HandwritingOCROperationResult> Recognize(Func<VisionServiceClient, Task<HandwritingOCROperation>> Func)
@@ -112,19 +111,17 @@ namespace VisionAPI_WPF_Samples
         {
             _status.Text = "Performing HandwritingOCR...";
 
-            string languageCode = (languageComboBox.SelectedItem as RecognizeLanguage).ShortCode;
-
             //
             // Either upload an image, or supply a url
             //
             HandwritingOCROperationResult result;
             if (upload)
             {
-                result = await UploadAndRecognizeImage(imageUri.LocalPath, languageCode);
+                result = await UploadAndRecognizeImage(imageUri.LocalPath);
             }
             else
             {
-                result = await RecognizeUrl(imageUri.AbsoluteUri, languageCode);
+                result = await RecognizeUrl(imageUri.AbsoluteUri);
             }
             _status.Text = "HandwritingOCR Done";
 
@@ -133,14 +130,6 @@ namespace VisionAPI_WPF_Samples
             //
             LogOneOCRResult(result);
             Log("HandwritingOCR Done!");
-        }
-
-        private List<RecognizeLanguage> GetSupportedLanguages()
-        {
-            return new List<RecognizeLanguage>()
-            {
-                new RecognizeLanguage(){ ShortCode = "en",      LongName = "English"  },
-            };
         }
     }
 }

@@ -14,19 +14,8 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Margin="5, 5, 0, 0" FontWeight="Bold">Recognize Text in an Image (OCR)</TextBlock>
+        <TextBlock Grid.Row="0" Margin="5, 5, 0, 0" FontWeight="Bold">Recognize Text in an Image (HandwritingOCR)</TextBlock>
         <StackPanel Orientation="Vertical" Grid.Row="1" >
-            <TextBlock Margin="5, 5, 0, 0" Text="Choose a language to recognize, then click either [Load Image] or paste in an image url and click [Recognize Text]"/>
-            <StackPanel Orientation="Horizontal" Margin="5, 10, 0, 5">
-                <TextBlock>Language to detect:</TextBlock>
-                <ComboBox x:Name="languageComboBox" Width="140" SelectedIndex="0" Margin="5, 0">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding LongName}" />
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-            </StackPanel>
             <Button Click="LoadImageButton_Click" Margin="5, 5, 0, 0" Width="80" HorizontalAlignment="Left">Load Image</Button>
             <StackPanel Orientation="Horizontal" Margin="5, 5, 0, 0">
                 <TextBox x:Name="_urlTextBox" Width="361" Margin="0, 5, 0, 0">https://oxfordportal.blob.core.windows.net/vision/OpticalCharacterRecognition/6-1.jpg</TextBox>
