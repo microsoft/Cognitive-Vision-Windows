@@ -332,9 +332,9 @@ namespace VisionAPI_WPF_Samples
             }
 
             Log(stringBuilder.ToString());
-            if (results.StatusCode == HandwritingOCROperationStatus.Running || results.StatusCode == HandwritingOCROperationStatus.NotStarted)
+            if (results.Status == HandwritingOCROperationStatus.Running || results.Status == HandwritingOCROperationStatus.NotStarted)
             {
-                Log(string.Format("Status is {0} after try {1} times", results.StatusCode, MaxRetryTimes));
+                Log(string.Format("Status is {0} after try {1} times", results.Status, MaxRetryTimes));
             }
         }
     }

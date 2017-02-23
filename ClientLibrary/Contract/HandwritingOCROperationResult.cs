@@ -35,7 +35,7 @@ namespace Microsoft.ProjectOxford.Vision.Contract
 {
     public class HandwritingOCROperationResult
     {
-        public HandwritingOCROperationStatus StatusCode { get; set; }
+        public HandwritingOCROperationStatus Status { get; set; }
         public HandwritingOCRResult RecognitionResult { get; set; }
     }
 }

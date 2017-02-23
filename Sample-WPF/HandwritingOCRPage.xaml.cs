@@ -67,9 +67,9 @@ namespace VisionAPI_WPF_Samples
                     result = await VisionServiceClient.GetHandwritingOCROperationResultAsync(operation);
 
                     int i = 0;
-                    while ((result.StatusCode == HandwritingOCROperationStatus.Running || result.StatusCode == HandwritingOCROperationStatus.NotStarted) && i++ < MaxRetryTimes)
+                    while ((result.Status == HandwritingOCROperationStatus.Running || result.Status == HandwritingOCROperationStatus.NotStarted) && i++ < MaxRetryTimes)
                     {
-                        Log(string.Format("Server status: {0}, wait {1} seconds...", result.StatusCode, QueryWaitTimeInSecond));
+                        Log(string.Format("Server status: {0}, wait {1} seconds...", result.Status, QueryWaitTimeInSecond));
                         await Task.Delay(QueryWaitTimeInSecond);
 
                         Log("Calling VisionServiceClient.GetHandwritingOCROperationResultAsync()...");
@@ -78,7 +78,7 @@ namespace VisionAPI_WPF_Samples
                 }
                 catch (ClientException ex)
                 {
-                    result = new HandwritingOCROperationResult() { StatusCode = HandwritingOCROperationStatus.Failed };
+                    result = new HandwritingOCROperationResult() { Status = HandwritingOCROperationStatus.Failed };
                     Log(ex.Error.Message);
                 }
                 return result;
@@ -122,9 +122,9 @@ namespace VisionAPI_WPF_Samples
                 result = await VisionServiceClient.GetHandwritingOCROperationResultAsync(operation);
 
                 int i = 0;
-                while ((result.StatusCode == HandwritingOCROperationStatus.Running || result.StatusCode == HandwritingOCROperationStatus.NotStarted) && i++ < MaxRetryTimes)
+                while ((result.Status == HandwritingOCROperationStatus.Running || result.Status == HandwritingOCROperationStatus.NotStarted) && i++ < MaxRetryTimes)
                 {
-                    Log(string.Format("Server status: {0}, wait {1} seconds...", result.StatusCode, QueryWaitTimeInSecond));
+                    Log(string.Format("Server status: {0}, wait {1} seconds...", result.Status, QueryWaitTimeInSecond));
                     await Task.Delay(QueryWaitTimeInSecond);
 
                     Log("Calling VisionServiceClient.GetHandwritingOCROperationResultAsync()...");
@@ -134,7 +134,7 @@ namespace VisionAPI_WPF_Samples
             }
             catch (ClientException ex)
             {
-                result = new HandwritingOCROperationResult() { StatusCode = HandwritingOCROperationStatus.Failed };
+                result = new HandwritingOCROperationResult() { Status = HandwritingOCROperationStatus.Failed };
                 Log(ex.Error.Message);
             }
 
@@ -174,8 +174,8 @@ namespace VisionAPI_WPF_Samples
             //
             // Log analysis result in the log window
             //
-            Log("");
             LogOneOCRResult(result);
+            Log("HandwritingOCR Done!");
         }
 
         private List<RecognizeLanguage> GetSupportedLanguages()
