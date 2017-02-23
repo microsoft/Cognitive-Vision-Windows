@@ -331,7 +331,15 @@ namespace VisionAPI_WPF_Samples
                 }
             }
 
-            Log(stringBuilder.ToString());
+            if (string.IsNullOrWhiteSpace(stringBuilder.ToString()))
+            {
+                Log("No text is recognized.");
+            }
+            else
+            {
+                Log(stringBuilder.ToString());
+            }
+            
             if (results.Status == HandwritingOCROperationStatus.Running || results.Status == HandwritingOCROperationStatus.NotStarted)
             {
                 Log(string.Format("Status is {0} after try {1} times", results.Status, MaxRetryTimes));

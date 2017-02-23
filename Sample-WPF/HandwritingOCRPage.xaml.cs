@@ -40,53 +40,10 @@ namespace VisionAPI_WPF_Samples
         /// <returns></returns>
         private async Task<HandwritingOCROperationResult> UploadAndRecognizeImage(string imageFilePath, string language)
         {
-            // -----------------------------------------------------------------------
-            // KEY SAMPLE CODE STARTS HERE
-            // -----------------------------------------------------------------------
-
-            //
-            // Create Project Oxford Vision API Service client
-            //
-            VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey);
-            Log("VisionServiceClient is created");
-
             using (Stream imageFileStream = File.OpenRead(imageFilePath))
             {
-                //
-                // Upload an image and perform OCR
-                //
-
-                HandwritingOCROperationResult result;
-                try
-                {
-                    Log("Calling VisionServiceClient.CreateHandwritingOCROperationAsync()...");
-                    HandwritingOCROperation operation = await VisionServiceClient.CreateHandwritingOCROperationAsync(imageFileStream, language);
-
-                    await Task.Delay(QueryWaitTimeInSecond);
-                    Log("Calling VisionServiceClient.GetHandwritingOCROperationResultAsync()...");
-                    result = await VisionServiceClient.GetHandwritingOCROperationResultAsync(operation);
-
-                    int i = 0;
-                    while ((result.Status == HandwritingOCROperationStatus.Running || result.Status == HandwritingOCROperationStatus.NotStarted) && i++ < MaxRetryTimes)
-                    {
-                        Log(string.Format("Server status: {0}, wait {1} seconds...", result.Status, QueryWaitTimeInSecond));
-                        await Task.Delay(QueryWaitTimeInSecond);
-
-                        Log("Calling VisionServiceClient.GetHandwritingOCROperationResultAsync()...");
-                        result = await VisionServiceClient.GetHandwritingOCROperationResultAsync(operation);
-                    }
-                }
-                catch (ClientException ex)
-                {
-                    result = new HandwritingOCROperationResult() { Status = HandwritingOCROperationStatus.Failed };
-                    Log(ex.Error.Message);
-                }
-                return result;
+                return await Recognize(async (VisionServiceClient VisionServiceClient) => await VisionServiceClient.CreateHandwritingOCROperationAsync(imageFileStream, language));
             }
-
-            // -----------------------------------------------------------------------
-            // KEY SAMPLE CODE ENDS HERE
-            // -----------------------------------------------------------------------
         }
 
         /// <summary>
@@ -96,6 +53,11 @@ namespace VisionAPI_WPF_Samples
         /// <param name="language">The language code to recognize for</param>
         /// <returns></returns>
         private async Task<HandwritingOCROperationResult> RecognizeUrl(string imageUrl, string language)
+        {
+            return await Recognize(async (VisionServiceClient VisionServiceClient) => await VisionServiceClient.CreateHandwritingOCROperationAsync(imageUrl, language));
+        }
+
+        private async Task<HandwritingOCROperationResult> Recognize(Func<VisionServiceClient, Task<HandwritingOCROperation>> Func)
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
@@ -107,17 +69,12 @@ namespace VisionAPI_WPF_Samples
             VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey);
             Log("VisionServiceClient is created");
 
-            //
-            // Perform OCR on the given url
-            //
-            
             HandwritingOCROperationResult result;
             try
             {
                 Log("Calling VisionServiceClient.CreateHandwritingOCROperationAsync()...");
-                HandwritingOCROperation operation = await VisionServiceClient.CreateHandwritingOCROperationAsync(imageUrl, language);
+                HandwritingOCROperation operation = await Func(VisionServiceClient);
 
-                await Task.Delay(QueryWaitTimeInSecond);
                 Log("Calling VisionServiceClient.GetHandwritingOCROperationResultAsync()...");
                 result = await VisionServiceClient.GetHandwritingOCROperationResultAsync(operation);
 
@@ -130,7 +87,7 @@ namespace VisionAPI_WPF_Samples
                     Log("Calling VisionServiceClient.GetHandwritingOCROperationResultAsync()...");
                     result = await VisionServiceClient.GetHandwritingOCROperationResultAsync(operation);
                 }
-                
+
             }
             catch (ClientException ex)
             {
