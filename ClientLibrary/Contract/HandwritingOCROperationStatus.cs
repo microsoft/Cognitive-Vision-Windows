@@ -33,15 +33,30 @@
 
 namespace Microsoft.ProjectOxford.Vision.Contract
 {
+    /// <summary>
+    /// The enum of HandwritingOCROperationStatus
+    /// </summary>
     //[JsonConverter(typeof(StringEnumConverter))]
     public enum HandwritingOCROperationStatus
     {
+        /// <summary>
+        /// not started
+        /// </summary>
         NotStarted,
 
+        /// <summary>
+        /// running
+        /// </summary>
         Running,
 
+        /// <summary>
+        /// succeeded
+        /// </summary>
         Succeeded,
 
+        /// <summary>
+        /// failed
+        /// </summary>
         Failed,
     }
 }

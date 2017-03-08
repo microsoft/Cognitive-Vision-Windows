@@ -33,8 +33,17 @@
 
 namespace Microsoft.ProjectOxford.Vision.Contract
 {
+    /// <summary>
+    /// The class of HandwritingOCROperation
+    /// </summary>
     public class HandwritingOCROperation
     {
+        /// <summary>
+        /// Gets or sets the Url
+        /// </summary>
+        /// <value>
+        /// The Url
+        /// </value>
         public string Url { get; set; }
     }
 }
