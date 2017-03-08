@@ -33,6 +33,9 @@
 
 namespace Microsoft.ProjectOxford.Vision.Contract
 {
+    /// <summary>
+    /// The class of HandwritingOCRWord
+    /// </summary>
     public class HandwritingOCRWord
     {
         /// <summary>

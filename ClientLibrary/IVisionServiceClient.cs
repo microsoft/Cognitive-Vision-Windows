@@ -171,8 +171,6 @@ namespace Microsoft.ProjectOxford.Vision
         /// Create HandwritingOCR Operation
         /// </summary>
         /// <param name="imageUrl">Image url</param>
-        /// <param name="languageCode">The language code.</param>
-        /// <param name="detectOrientation">if set to <c>true</c> [detect orientation].</param>
         /// <returns>HandwritingOCR Operation created</returns>
         Task<HandwritingOCROperation> CreateHandwritingOCROperationAsync(string imageUrl);
 
@@ -180,8 +178,6 @@ namespace Microsoft.ProjectOxford.Vision
         /// Create HandwritingOCR Operation
         /// </summary>
         /// <param name="imageStream">Image content is byte array.</param>
-        /// <param name="languageCode">The language code.</param>
-        /// <param name="detectOrientation">if set to <c>true</c> [detect orientation].</param>
         /// <returns>HandwritingOCR Operation created</returns>
         Task<HandwritingOCROperation> CreateHandwritingOCROperationAsync(Stream imageStream);
 

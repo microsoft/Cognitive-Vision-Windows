@@ -384,9 +384,7 @@ namespace Microsoft.ProjectOxford.Vision
         /// Recognizes the handwriting text asynchronous.
         /// </summary>
         /// <param name="imageUrl">The image URL.</param>
-        /// <param name="languageCode">The language code.</param>
-        /// <param name="detectOrientation">if set to <c>true</c> [detect orientation].</param>
-        /// <returns>The OCR object.</returns>
+        /// <returns>HandwritingOCR Operation created</returns>
         public async Task<HandwritingOCROperation> CreateHandwritingOCROperationAsync(string imageUrl)
         {
             string requestUrl = string.Format("{0}/recognizeText?handwriting=true&{1}={2}", ServiceHost, _subscriptionKeyName, _subscriptionKey);
@@ -402,9 +400,7 @@ namespace Microsoft.ProjectOxford.Vision
         /// Recognizes the handwriting text asynchronous.
         /// </summary>
         /// <param name="imageStream">The image stream.</param>
-        /// <param name="languageCode">The language code.</param>
-        /// <param name="detectOrientation">if set to <c>true</c> [detect orientation].</param>
-        /// <returns>The OCR object.</returns>
+        /// <returns>HandwritingOCR Operation created</returns>
         public async Task<HandwritingOCROperation> CreateHandwritingOCROperationAsync(Stream imageStream)
         {
             string requestUrl = string.Format("{0}/recognizeText?handwriting=true&{1}={2}", ServiceHost, _subscriptionKeyName, _subscriptionKey);
@@ -413,10 +409,14 @@ namespace Microsoft.ProjectOxford.Vision
             return await this.SendAsync<Stream, HandwritingOCROperation>("POST", imageStream, request).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Get HandwritingOCR Operation Result
+        /// </summary>
+        /// <param name="opeartion">HandwritingOCROperation object</param>
+        /// <returns>HandwritingOCROperation result</returns>
         public async Task<HandwritingOCROperationResult> GetHandwritingOCROperationResultAsync(HandwritingOCROperation opeartion)
         {
             string requestUrl = string.Format("{0}?{1}={2}", opeartion.Url, _subscriptionKeyName, _subscriptionKey);
-            //string requestUrl = string.Format("{0}?{1}={2}", opeartionLocation, _subscriptionKeyName, _subscriptionKey);
             var request = WebRequest.Create(requestUrl);
 
             return await this.GetAsync<HandwritingOCROperationResult>("Get", request).ConfigureAwait(false);
