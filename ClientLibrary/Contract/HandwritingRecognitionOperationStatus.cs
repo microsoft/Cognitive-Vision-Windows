@@ -34,7 +34,7 @@
 namespace Microsoft.ProjectOxford.Vision.Contract
 {
     /// <summary>
-    /// The enum of HandwritingOCROperationStatus
+    /// The enum of HandwritingRecognitionOperationStatus
     /// </summary>
     //[JsonConverter(typeof(StringEnumConverter))]
     public enum HandwritingRecognitionOperationStatus
