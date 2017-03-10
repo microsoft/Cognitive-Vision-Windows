@@ -31,12 +31,14 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using Newtonsoft.Json;
+
 namespace Microsoft.ProjectOxford.Vision.Contract
 {
     /// <summary>
-    /// The class of HandwritingOCR line.
+    /// The class of HandwritingTextLine.
     /// </summary>
-    public class HandwritingOCRLine
+    public class HandwritingTextLine
     {
         /// <summary>
         /// Gets or sets the bounding box.
@@ -52,6 +54,21 @@ namespace Microsoft.ProjectOxford.Vision.Contract
         /// <value>
         /// The words.
         /// </value>
-        public HandwritingOCRWord[] Words { get; set; }
+        public HandwritingTextWord[] Words { get; set; }
+
+        /// <summary>
+        /// Gets the polygon
+        /// </summary>
+        /// <value>
+        /// The polygon
+        /// </value>
+        [JsonIgnore]
+        public Polygon Polygon
+        {
+            get
+            {
+                return Polygon.FromArray(this.BoundingBox);
+            }
+        }
     }
 }

@@ -34,16 +34,21 @@
 namespace Microsoft.ProjectOxford.Vision.Contract
 {
     /// <summary>
-    /// The class of HandwritingOCROperation
+    /// The class of Point
     /// </summary>
-    public class HandwritingOCROperation
+    public class Point
     {
         /// <summary>
-        /// Gets or sets the Url
+        /// Gets or sets the X value of point
         /// </summary>
-        /// <value>
-        /// The Url
-        /// </value>
-        public string Url { get; set; }
+        /// <value>The x value</value>
+        public int X { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Y value of point
+        /// </summary>
+        /// <value>The y value</value>
+        public int Y { get; set; }
+
     }
 }

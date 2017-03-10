@@ -168,25 +168,25 @@ namespace Microsoft.ProjectOxford.Vision
         Task<OcrResults> RecognizeTextAsync(Stream imageStream, string languageCode = LanguageCodes.AutoDetect, bool detectOrientation = true);
 
         /// <summary>
-        /// Create HandwritingOCR Operation
+        /// HandwritingRecognitionOperation
         /// </summary>
         /// <param name="imageUrl">Image url</param>
-        /// <returns>HandwritingOCR Operation created</returns>
-        Task<HandwritingOCROperation> CreateHandwritingOCROperationAsync(string imageUrl);
+        /// <returns>HandwritingRecognitionOperation created</returns>
+        Task<HandwritingRecognitionOperation> CreateHandwritingRecognitionOperationAsync(string imageUrl);
 
         /// <summary>
-        /// Create HandwritingOCR Operation
+        /// Create HandwritingRecognitionOperation
         /// </summary>
         /// <param name="imageStream">Image content is byte array.</param>
-        /// <returns>HandwritingOCR Operation created</returns>
-        Task<HandwritingOCROperation> CreateHandwritingOCROperationAsync(Stream imageStream);
+        /// <returns>HandwritingRecognitionOperation created</returns>
+        Task<HandwritingRecognitionOperation> CreateHandwritingRecognitionOperationAsync(Stream imageStream);
 
         /// <summary>
-        /// Get HandwritingOCR Operation Result
+        /// Get HandwritingRecognitionOperationResult
         /// </summary>
-        /// <param name="opeartion">HandwritingOCROperation object</param>
-        /// <returns>HandwritingOCROperation result</returns>
-        Task<HandwritingOCROperationResult> GetHandwritingOCROperationResultAsync(HandwritingOCROperation opeartion);
+        /// <param name="opeartion">HandwritingRecognitionOperation object</param>
+        /// <returns>HandwritingRecognitionOperationResult</returns>
+        Task<HandwritingRecognitionOperationResult> GetHandwritingRecognitionOperationResultAsync(HandwritingRecognitionOperation opeartion);
 
         /// <summary>
         /// Gets the tags associated with an image.

@@ -307,10 +307,10 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Log text from the given OCR results object.
+        /// Log text from the given HandwritingRecognitionOperationResult object.
         /// </summary>
-        /// <param name="results">The OCR results.</param>
-        protected void LogOneOCRResult(HandwritingOCROperationResult results)
+        /// <param name="results">The HandwritingRecognitionOperationResult.</param>
+        protected void LogHandwritingRecognitionResult(HandwritingRecognitionOperationResult results)
         {
             StringBuilder stringBuilder = new StringBuilder();
 
@@ -340,7 +340,7 @@ namespace VisionAPI_WPF_Samples
                 Log(stringBuilder.ToString());
             }
             
-            if (results.Status == HandwritingOCROperationStatus.Running || results.Status == HandwritingOCROperationStatus.NotStarted)
+            if (results.Status == HandwritingRecognitionOperationStatus.Running || results.Status == HandwritingRecognitionOperationStatus.NotStarted)
             {
                 Log(string.Format("Status is {0} after try {1} times", results.Status, MaxRetryTimes));
             }

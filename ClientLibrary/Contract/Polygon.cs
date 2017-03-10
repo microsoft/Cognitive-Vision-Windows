@@ -31,27 +31,46 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System.Collections.Generic;
+
 namespace Microsoft.ProjectOxford.Vision.Contract
 {
     /// <summary>
-    ///  The class of HandwritingOCROperation Result
+    /// The class of polygon
     /// </summary>
-    public class HandwritingOCROperationResult
+    public class Polygon
     {
         /// <summary>
-        /// Gets or Sets the status
+        /// Constructor of the class
         /// </summary>
-        /// <value>
-        /// The status
-        /// </value>
-        public HandwritingOCROperationStatus Status { get; set; }
+        public Polygon()
+        {
+            Points = new List<Point>();
+        }
 
         /// <summary>
-        /// Gets or sets the RecognitionResult
+        /// Gets and sets the points of polygon
         /// </summary>
         /// <value>
-        /// The result of recognition
+        /// The points of polygon
         /// </value>
-        public HandwritingOCRResult RecognitionResult { get; set; }
+        public List<Point> Points { get; set; }
+
+        /// <summary>
+        /// Get a polygon object from boundingbox array
+        /// </summary>
+        /// <param name="boundingBox"> The boundingBox array</param>
+        /// <returns>The polygon</returns>
+        public static Polygon FromArray(int[] boundingBox)
+        {
+            Polygon polygon = new Polygon();
+
+            for (int i = 0; i + 1 < boundingBox.Length; i += 2)
+            {
+                polygon.Points.Add(new Point() { X = boundingBox[i], Y = boundingBox[i + 1] });
+            }
+
+            return polygon;
+        }
     }
 }
