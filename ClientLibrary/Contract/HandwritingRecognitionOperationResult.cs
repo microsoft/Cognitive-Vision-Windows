@@ -34,7 +34,7 @@
 namespace Microsoft.ProjectOxford.Vision.Contract
 {
     /// <summary>
-    ///  The class of HandwritingRecognitionOperationResult Result
+    ///  The class of HandwritingRecognitionOperationResult
     /// </summary>
     public class HandwritingRecognitionOperationResult
     {
