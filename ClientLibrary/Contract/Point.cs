@@ -34,24 +34,21 @@
 namespace Microsoft.ProjectOxford.Vision.Contract
 {
     /// <summary>
-    /// The class of HandwritingOCR line.
+    /// The class of Point
     /// </summary>
-    public class HandwritingOCRLine
+    public class Point
     {
         /// <summary>
-        /// Gets or sets the bounding box.
+        /// Gets or sets the X value of point
         /// </summary>
-        /// <value>
-        /// The bounding box.
-        /// </value>
-        public int[] BoundingBox { get; set; }
+        /// <value>The x value</value>
+        public int X { get; set; }
 
         /// <summary>
-        /// Gets or sets the words.
+        /// Gets or sets the Y value of point
         /// </summary>
-        /// <value>
-        /// The words.
-        /// </value>
-        public HandwritingOCRWord[] Words { get; set; }
+        /// <value>The y value</value>
+        public int Y { get; set; }
+
     }
 }

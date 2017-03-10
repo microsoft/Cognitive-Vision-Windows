@@ -34,24 +34,29 @@
 namespace Microsoft.ProjectOxford.Vision.Contract
 {
     /// <summary>
-    /// The class of HandwritingOCRWord
+    /// The enum of HandwritingOCROperationStatus
     /// </summary>
-    public class HandwritingOCRWord
+    //[JsonConverter(typeof(StringEnumConverter))]
+    public enum HandwritingRecognitionOperationStatus
     {
         /// <summary>
-        /// Gets or sets the bounding box.
+        /// not started
         /// </summary>
-        /// <value>
-        /// The bounding box.
-        /// </value>
-        public int[] BoundingBox { get; set; }
+        NotStarted,
 
         /// <summary>
-        /// Gets or sets the text.
+        /// running
         /// </summary>
-        /// <value>
-        /// The text.
-        /// </value>
-        public string Text { get; set; }
+        Running,
+
+        /// <summary>
+        /// succeeded
+        /// </summary>
+        Succeeded,
+
+        /// <summary>
+        /// failed
+        /// </summary>
+        Failed,
     }
 }

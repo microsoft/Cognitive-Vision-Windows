@@ -55,7 +55,7 @@ namespace Microsoft.ProjectOxford.Vision
         /// <summary>
         /// The service host
         /// </summary>
-        private const string DEFAULT_API_ROOT = "https://westus.api.cognitive.microsoft.com/vision/v1.0";
+        private const string DEFAULT_API_ROOT = "https://ocr.azure-api.net/vision/v1.0";
 
         /// <summary>
         /// Host root, overridable by subclasses, intended for testing.
@@ -384,8 +384,8 @@ namespace Microsoft.ProjectOxford.Vision
         /// Recognizes the handwriting text asynchronous.
         /// </summary>
         /// <param name="imageUrl">The image URL.</param>
-        /// <returns>HandwritingOCR Operation created</returns>
-        public async Task<HandwritingOCROperation> CreateHandwritingOCROperationAsync(string imageUrl)
+        /// <returns>HandwritingRecognitionOperation created</returns>
+        public async Task<HandwritingRecognitionOperation> CreateHandwritingRecognitionOperationAsync(string imageUrl)
         {
             string requestUrl = string.Format("{0}/recognizeText?handwriting=true&{1}={2}", ServiceHost, _subscriptionKeyName, _subscriptionKey);
             var request = WebRequest.Create(requestUrl);
@@ -393,33 +393,33 @@ namespace Microsoft.ProjectOxford.Vision
             dynamic requestObject = new ExpandoObject();
             requestObject.url = imageUrl;
 
-            return await this.SendAsync<ExpandoObject, HandwritingOCROperation>("POST", requestObject, request).ConfigureAwait(false);
+            return await this.SendAsync<ExpandoObject, HandwritingRecognitionOperation>("POST", requestObject, request).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Recognizes the handwriting text asynchronous.
         /// </summary>
         /// <param name="imageStream">The image stream.</param>
-        /// <returns>HandwritingOCR Operation created</returns>
-        public async Task<HandwritingOCROperation> CreateHandwritingOCROperationAsync(Stream imageStream)
+        /// <returns>HandwritingRecognitionOperation created</returns>
+        public async Task<HandwritingRecognitionOperation> CreateHandwritingRecognitionOperationAsync(Stream imageStream)
         {
             string requestUrl = string.Format("{0}/recognizeText?handwriting=true&{1}={2}", ServiceHost, _subscriptionKeyName, _subscriptionKey);
             var request = WebRequest.Create(requestUrl);
 
-            return await this.SendAsync<Stream, HandwritingOCROperation>("POST", imageStream, request).ConfigureAwait(false);
+            return await this.SendAsync<Stream, HandwritingRecognitionOperation>("POST", imageStream, request).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// Get HandwritingOCR Operation Result
+        /// Get HandwritingRecognitionOperationResult
         /// </summary>
-        /// <param name="opeartion">HandwritingOCROperation object</param>
-        /// <returns>HandwritingOCROperation result</returns>
-        public async Task<HandwritingOCROperationResult> GetHandwritingOCROperationResultAsync(HandwritingOCROperation opeartion)
+        /// <param name="opeartion">HandwritingRecognitionOperation object</param>
+        /// <returns>HandwritingRecognitionOperationResult</returns>
+        public async Task<HandwritingRecognitionOperationResult> GetHandwritingRecognitionOperationResultAsync(HandwritingRecognitionOperation opeartion)
         {
             string requestUrl = string.Format("{0}?{1}={2}", opeartion.Url, _subscriptionKeyName, _subscriptionKey);
             var request = WebRequest.Create(requestUrl);
 
-            return await this.GetAsync<HandwritingOCROperationResult>("Get", request).ConfigureAwait(false);
+            return await this.GetAsync<HandwritingRecognitionOperationResult>("Get", request).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -720,7 +720,7 @@ namespace Microsoft.ProjectOxford.Vision
         private void SetCommonHeaders(WebRequest request)
         {
             request.ContentType = "application/json";
-            //request.Headers[HttpRequestHeader.Authorization] = "Basic ZTkwNTE2ZmQ4NThlNDVjMmFhNDMzMjRlZjBlOThlN2E=";
+            request.Headers[HttpRequestHeader.Authorization] = "Basic ZTkwNTE2ZmQ4NThlNDVjMmFhNDMzMjRlZjBlOThlN2E=";
         }
 
         /// <summary>
@@ -772,6 +772,7 @@ namespace Microsoft.ProjectOxford.Vision
 
                             ClientError errorCollection = JsonConvert.DeserializeObject<ClientError>(errorObjectString);
 
+                            // HandwritingOcr error message use the latest format, so add the logic to handle this issue.
                             if (errorCollection.Code == null && errorCollection.Message == null)
                             {
                                 var errorType = new { Error = new ClientError() };
