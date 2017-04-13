@@ -168,6 +168,27 @@ namespace Microsoft.ProjectOxford.Vision
         Task<OcrResults> RecognizeTextAsync(Stream imageStream, string languageCode = LanguageCodes.AutoDetect, bool detectOrientation = true);
 
         /// <summary>
+        /// HandwritingRecognitionOperation
+        /// </summary>
+        /// <param name="imageUrl">Image url</param>
+        /// <returns>HandwritingRecognitionOperation created</returns>
+        Task<HandwritingRecognitionOperation> CreateHandwritingRecognitionOperationAsync(string imageUrl);
+
+        /// <summary>
+        /// Create HandwritingRecognitionOperation
+        /// </summary>
+        /// <param name="imageStream">Image content is byte array.</param>
+        /// <returns>HandwritingRecognitionOperation created</returns>
+        Task<HandwritingRecognitionOperation> CreateHandwritingRecognitionOperationAsync(Stream imageStream);
+
+        /// <summary>
+        /// Get HandwritingRecognitionOperationResult
+        /// </summary>
+        /// <param name="opeartion">HandwritingRecognitionOperation object</param>
+        /// <returns>HandwritingRecognitionOperationResult</returns>
+        Task<HandwritingRecognitionOperationResult> GetHandwritingRecognitionOperationResultAsync(HandwritingRecognitionOperation opeartion);
+
+        /// <summary>
         /// Gets the tags associated with an image.
         /// </summary>
         /// <param name="imageUrl">The image URL.</param>

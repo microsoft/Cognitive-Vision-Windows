@@ -381,6 +381,48 @@ namespace Microsoft.ProjectOxford.Vision
         }
 
         /// <summary>
+        /// Recognizes the handwriting text asynchronous.
+        /// </summary>
+        /// <param name="imageUrl">The image URL.</param>
+        /// <returns>HandwritingRecognitionOperation created</returns>
+        public async Task<HandwritingRecognitionOperation> CreateHandwritingRecognitionOperationAsync(string imageUrl)
+        {
+            string requestUrl = string.Format("{0}/recognizeText?handwriting=true&{1}={2}", ServiceHost, _subscriptionKeyName, _subscriptionKey);
+            var request = WebRequest.Create(requestUrl);
+
+            dynamic requestObject = new ExpandoObject();
+            requestObject.url = imageUrl;
+
+            return await this.SendAsync<ExpandoObject, HandwritingRecognitionOperation>("POST", requestObject, request).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Recognizes the handwriting text asynchronous.
+        /// </summary>
+        /// <param name="imageStream">The image stream.</param>
+        /// <returns>HandwritingRecognitionOperation created</returns>
+        public async Task<HandwritingRecognitionOperation> CreateHandwritingRecognitionOperationAsync(Stream imageStream)
+        {
+            string requestUrl = string.Format("{0}/recognizeText?handwriting=true&{1}={2}", ServiceHost, _subscriptionKeyName, _subscriptionKey);
+            var request = WebRequest.Create(requestUrl);
+
+            return await this.SendAsync<Stream, HandwritingRecognitionOperation>("POST", imageStream, request).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Get HandwritingRecognitionOperationResult
+        /// </summary>
+        /// <param name="opeartion">HandwritingRecognitionOperation object</param>
+        /// <returns>HandwritingRecognitionOperationResult</returns>
+        public async Task<HandwritingRecognitionOperationResult> GetHandwritingRecognitionOperationResultAsync(HandwritingRecognitionOperation opeartion)
+        {
+            string requestUrl = string.Format("{0}?{1}={2}", opeartion.Url, _subscriptionKeyName, _subscriptionKey);
+            var request = WebRequest.Create(requestUrl);
+
+            return await this.GetAsync<HandwritingRecognitionOperationResult>("Get", request).ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// Gets the tags associated with an image.
         /// </summary>
         /// <param name="imageStream">The image stream.</param>
@@ -624,7 +666,7 @@ namespace Microsoft.ProjectOxford.Vision
                         {
                             if (stream != null)
                             {
-                                if (webResponse.ContentType == "image/jpeg" || 
+                                if (webResponse.ContentType == "image/jpeg" ||
                                     webResponse.ContentType == "image/png")
                                 {
                                     using (MemoryStream ms = new MemoryStream())
@@ -649,6 +691,20 @@ namespace Microsoft.ProjectOxford.Vision
                                     return JsonConvert.DeserializeObject<T>(message, settings);
                                 }
                             }
+                        }
+                    }
+                    else
+                    {
+                        if (webResponse.Headers.AllKeys.Contains("Operation-Location"))
+                        {
+                            string message = string.Format("{{Url: \"{0}\"}}", webResponse.Headers["Operation-Location"]);
+
+                            JsonSerializerSettings settings = new JsonSerializerSettings();
+                            settings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+                            settings.NullValueHandling = NullValueHandling.Ignore;
+                            settings.ContractResolver = this._defaultResolver;
+
+                            return JsonConvert.DeserializeObject<T>(message, settings);
                         }
                     }
                 }
@@ -715,6 +771,15 @@ namespace Microsoft.ProjectOxford.Vision
                             }
 
                             ClientError errorCollection = JsonConvert.DeserializeObject<ClientError>(errorObjectString);
+
+                            // HandwritingOcr error message use the latest format, so add the logic to handle this issue.
+                            if (errorCollection.Code == null && errorCollection.Message == null)
+                            {
+                                var errorType = new { Error = new ClientError() };
+                                var errorObj = JsonConvert.DeserializeAnonymousType(errorObjectString, errorType);
+                                errorCollection = errorObj.Error;
+                            }
+
                             if (errorCollection != null)
                             {
                                 throw new ClientException

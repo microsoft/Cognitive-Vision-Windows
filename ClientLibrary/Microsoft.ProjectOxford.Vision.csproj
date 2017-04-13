@@ -49,6 +49,12 @@
     <Compile Include="Contract\Description.cs" />
     <Compile Include="Contract\Face.cs" />
     <Compile Include="Contract\FaceRectangle.cs" />
+    <Compile Include="Contract\HandwritingTextLine.cs" />
+    <Compile Include="Contract\HandwritingRecognitionOperation.cs" />
+    <Compile Include="Contract\HandwritingRecognitionOperationResult.cs" />
+    <Compile Include="Contract\HandwritingRecognitionOperationStatus.cs" />
+    <Compile Include="Contract\HandwritingTextResult.cs" />
+    <Compile Include="Contract\HandwritingTextWord.cs" />
     <Compile Include="Contract\ImageType.cs" />
     <Compile Include="Contract\Line.cs" />
     <Compile Include="Contract\Metadata.cs" />
@@ -56,12 +62,14 @@
     <Compile Include="Contract\ModelResult.cs" />
     <Compile Include="Contract\OcrResults.cs" />
     <Compile Include="Contract\LanguageCodes.cs" />
+    <Compile Include="Contract\Polygon.cs" />
     <Compile Include="Contract\Rectangle.cs" />
     <Compile Include="Contract\Region.cs" />
     <Compile Include="Contract\NameScorePair.cs" />
     <Compile Include="Contract\Tag.cs" />
     <Compile Include="Contract\Word.cs" />
     <Compile Include="IVisionServiceClient.cs" />
+    <Compile Include="Contract\Point.cs" />
     <Compile Include="VisionServiceClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VisualFeature.cs" />
