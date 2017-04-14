@@ -169,12 +169,12 @@ namespace Microsoft.ProjectOxford.Vision
         /// <param name="visualFeatures">The visual features.</param>
         /// <param name="details">Optional domain-specific models to invoke when appropriate.  To obtain names of models supported, invoke the <see cref="ListModelsAsync">ListModelsAsync</see> method.</param>
         /// <returns>The AnalysisResult object.</returns>
-        public async Task<AnalysisResult> AnalyzeImageAsync(string url, IEnumerable<VisualFeature> visualFeatures = null, IEnumerable<string> details = null)
+        public async Task<AnalysisResult> AnalyzeImageAsync(string url, IEnumerable<VisualFeature> visualFeatures = null, IEnumerable<string> details = null, string language = null)
         {
             dynamic request = new ExpandoObject();
             request.url = url;
 
-            return await AnalyzeImageAsync<ExpandoObject>(request, visualFeatures, details).ConfigureAwait(false);
+            return await AnalyzeImageAsync<ExpandoObject>(request, visualFeatures, details, language).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -184,9 +184,9 @@ namespace Microsoft.ProjectOxford.Vision
         /// <param name="visualFeatures">The visual features.</param>
         /// <param name="details">Optional domain-specific models to invoke when appropriate.  To obtain names of models supported, invoke the <see cref="ListModelsAsync">ListModelsAsync</see> method.</param>
         /// <returns>The AnalysisResult object.</returns>
-        public async Task<AnalysisResult> AnalyzeImageAsync(Stream imageStream, IEnumerable<VisualFeature> visualFeatures = null, IEnumerable<string> details = null)
+        public async Task<AnalysisResult> AnalyzeImageAsync(Stream imageStream, IEnumerable<VisualFeature> visualFeatures = null, IEnumerable<string> details = null, string language = null)
         {
-            return await AnalyzeImageAsync<Stream>(imageStream, visualFeatures, details).ConfigureAwait(false);
+            return await AnalyzeImageAsync<Stream>(imageStream, visualFeatures, details, language).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -196,13 +196,14 @@ namespace Microsoft.ProjectOxford.Vision
         /// <param name="visualFeatures">The visual features.</param>
         /// <param name="details">Optional domain-specific models to invoke when appropriate.  To obtain names of models supported, invoke the <see cref="ListModelsAsync">ListModelsAsync</see> method.</param>
         /// <returns>The AnalysisResult object.</returns>
-        private async Task<AnalysisResult> AnalyzeImageAsync<T>(T body, IEnumerable<VisualFeature> visualFeatures, IEnumerable<string> details)
+        private async Task<AnalysisResult> AnalyzeImageAsync<T>(T body, IEnumerable<VisualFeature> visualFeatures, IEnumerable<string> details, string language)
         {
             var requestUrl = new StringBuilder(ServiceHost).Append('/').Append(AnalyzeQuery).Append("?");
             requestUrl.Append(string.Join("&", new List<string>
             {
                 VisualFeaturesToString(visualFeatures),
                 DetailsToString(details),
+                LanguageToString(language),
                 _subscriptionKeyName + "=" + _subscriptionKey
             }
             .Where(s => !string.IsNullOrEmpty(s))));
@@ -443,6 +444,16 @@ namespace Microsoft.ProjectOxford.Vision
                 : "details=" + string.Join(",", details);
         }
 
+        /// <summary>
+        /// Converts a shortcode to a querystring
+        /// </summary>
+        /// <param name="language">String containing the language shortcode</param>
+        /// <returns>The language query parameter string</returns>
+        private string LanguageToString(string language)
+        {
+            return language == null ? "" : "language=" + language;
+        }
+
         #region the json client
 
         /// <summary>
@@ -624,7 +635,7 @@ namespace Microsoft.ProjectOxford.Vision
                         {
                             if (stream != null)
                             {
-                                if (webResponse.ContentType == "image/jpeg" || 
+                                if (webResponse.ContentType == "image/jpeg" ||
                                     webResponse.ContentType == "image/png")
                                 {
                                     using (MemoryStream ms = new MemoryStream())

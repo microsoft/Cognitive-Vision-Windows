@@ -67,8 +67,9 @@ namespace Microsoft.ProjectOxford.Vision
         /// <param name="url">The URL.</param>
         /// <param name="visualFeatures">The visual features. If none are specified, VisualFeatures.Categories will be analyzed.</param>
         /// <param name="details">Optional domain-specific models to invoke when appropriate.  To obtain names of models supported, invoke the <see cref="ListModelsAsync">ListModelsAsync</see> method.</param>
+        /// <param name="language">Optional language shortcode to specify the language of the response.</param>
         /// <returns>The AnalysisResult object.</returns>
-        Task<AnalysisResult> AnalyzeImageAsync(string url, IEnumerable<VisualFeature> visualFeatures = null, IEnumerable<string> details = null);
+        Task<AnalysisResult> AnalyzeImageAsync(string url, IEnumerable<VisualFeature> visualFeatures = null, IEnumerable<string> details = null, string language = null);
 
         /// <summary>
         /// Analyzes the image.
@@ -76,8 +77,9 @@ namespace Microsoft.ProjectOxford.Vision
         /// <param name="imageStream">The image stream.</param>
         /// <param name="visualFeatures">The visual features. If none are specified, VisualFeatures.Categories will be analyzed.</param>
         /// <param name="details">Optional domain-specific models to invoke when appropriate.  To obtain names of models supported, invoke the <see cref="ListModelsAsync">ListModelsAsync</see> method.</param>
+        /// <param name="language">Optional language shortcode to specify the language of the response.</param>
         /// <returns>The AnalysisResult object.</returns>
-        Task<AnalysisResult> AnalyzeImageAsync(Stream imageStream, IEnumerable<VisualFeature> visualFeatures = null, IEnumerable<string> details = null);
+        Task<AnalysisResult> AnalyzeImageAsync(Stream imageStream, IEnumerable<VisualFeature> visualFeatures = null, IEnumerable<string> details = null, string language = null);
 
         /// <summary>
         /// Analyzes the image using a domain-specific image analysis model.
