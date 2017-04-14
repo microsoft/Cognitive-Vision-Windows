@@ -1,15 +1,15 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license.
-// 
+//
 // Microsoft Cognitive Services (formerly Project Oxford): https://www.microsoft.com/cognitive-services
-// 
+//
 // Microsoft Cognitive Services (formerly Project Oxford) GitHub:
 // https://github.com/Microsoft/Cognitive-Vision-Windows
-// 
+//
 // Copyright (c) Microsoft Corporation
 // All rights reserved.
-// 
+//
 // MIT License:
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -18,10 +18,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED ""AS IS"", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -29,44 +29,34 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
-using System.Windows;
-using SampleUserControlLibrary;
-
-namespace VisionAPI_WPF_Samples
+namespace Microsoft.ProjectOxford.Vision.Contract
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// The enum of HandwritingRecognitionOperationStatus
     /// </summary>
-    public partial class MainWindow : Window
+    //[JsonConverter(typeof(StringEnumConverter))]
+    public enum HandwritingRecognitionOperationStatus
     {
-        public SampleScenarios ScenarioControl
-        {
-            get
-            {
-                return _scenariosControl;
-            }
-        }
+        /// <summary>
+        /// not started
+        /// </summary>
+        NotStarted,
 
-        public MainWindow()
-        {
-            InitializeComponent();
+        /// <summary>
+        /// running
+        /// </summary>
+        Running,
 
-            //
-            // Initialize SampleScenarios User Control with titles and scenario pages
-            //
-            _scenariosControl.SampleTitle = "Vision API";
-            _scenariosControl.SampleScenarioList = new Scenario[]
-            {
-                new Scenario { Title = "Analyze Image", PageClass = typeof(AnalyzePage) },
-                new Scenario { Title = "Analyze Image with Domain Model", PageClass = typeof(AnalyzeInDomainPage) },
-                new Scenario { Title = "Describe Image", PageClass = typeof(DescribePage) },
-                new Scenario { Title = "Generate Tags", PageClass = typeof(TagsPage) },
-                new Scenario { Title = "Recognize Text (OCR)", PageClass = typeof(OCRPage) },
-                new Scenario { Title = "Recognize Handwriting Text (English)", PageClass = typeof(HandwritingRecognitionPage) },
-                new Scenario { Title = "Get Thumbnail", PageClass = typeof(ThumbnailPage) },
-            };
-        }
+        /// <summary>
+        /// succeeded
+        /// </summary>
+        Succeeded,
+
+        /// <summary>
+        /// failed
+        /// </summary>
+        Failed,
     }
 }

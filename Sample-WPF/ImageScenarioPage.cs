@@ -48,6 +48,8 @@ namespace VisionAPI_WPF_Samples
     public abstract class ImageScenarioPage : Page
     {
         private MainWindow mainWindow => ((MainWindow)Application.Current.MainWindow);
+        protected static readonly TimeSpan QueryWaitTimeInSecond = TimeSpan.FromSeconds(3);
+        protected static readonly int MaxRetryTimes = 3;
 
         protected Image PreviewImage { get; set; }
 
@@ -302,6 +304,46 @@ namespace VisionAPI_WPF_Samples
             }
 
             Log(stringBuilder.ToString());
+        }
+
+        /// <summary>
+        /// Log text from the given HandwritingRecognitionOperationResult object.
+        /// </summary>
+        /// <param name="results">The HandwritingRecognitionOperationResult.</param>
+        protected void LogHandwritingRecognitionResult(HandwritingRecognitionOperationResult results)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            if (results != null && results.RecognitionResult != null && results.RecognitionResult.Lines != null && results.RecognitionResult.Lines.Length > 0)
+            {
+                stringBuilder.Append("Text: ");
+                stringBuilder.AppendLine();
+                foreach (var line in results.RecognitionResult.Lines)
+                {
+                    foreach (var word in line.Words)
+                    {
+                        stringBuilder.Append(word.Text);
+                        stringBuilder.Append(" ");
+                    }
+
+                    stringBuilder.AppendLine();
+                    stringBuilder.AppendLine();
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(stringBuilder.ToString()))
+            {
+                Log("No text is recognized.");
+            }
+            else
+            {
+                Log(stringBuilder.ToString());
+            }
+            
+            if (results.Status == HandwritingRecognitionOperationStatus.Running || results.Status == HandwritingRecognitionOperationStatus.NotStarted)
+            {
+                Log(string.Format("Status is {0} after try {1} times", results.Status, MaxRetryTimes));
+            }
         }
     }
 }
