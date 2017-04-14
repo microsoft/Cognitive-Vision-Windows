@@ -493,7 +493,7 @@ namespace Microsoft.ProjectOxford.Vision
         /// <returns>The language query parameter string</returns>
         private string LanguageToString(string language)
         {
-            return language == null ? "" : "language=" + language;
+            return string.IsNullOrEmpty(language) ? "" : "language=" + language;
         }
 
         #region the json client
