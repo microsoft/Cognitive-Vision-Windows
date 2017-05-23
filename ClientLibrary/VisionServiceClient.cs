@@ -55,7 +55,7 @@ namespace Microsoft.ProjectOxford.Vision
         /// <summary>
         /// The service host
         /// </summary>
-        private const string DEFAULT_API_ROOT = "https://westus.api.cognitive.microsoft.com/vision/v1.0";
+        private const string DEFAULT_API_ROOT = "https://westcentralus.api.cognitive.microsoft.com/vision/v1.0";
 
         /// <summary>
         /// Host root, overridable by subclasses, intended for testing.
