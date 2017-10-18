@@ -1,15 +1,15 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license.
-// 
+//
 // Microsoft Cognitive Services (formerly Project Oxford): https://www.microsoft.com/cognitive-services
-// 
+//
 // Microsoft Cognitive Services (formerly Project Oxford) GitHub:
 // https://github.com/Microsoft/Cognitive-Vision-Windows
-// 
+//
 // Copyright (c) Microsoft Corporation
 // All rights reserved.
-// 
+//
 // MIT License:
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -18,10 +18,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED ""AS IS"", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -29,7 +29,7 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
 using System;
 using System.IO;
@@ -73,7 +73,7 @@ namespace VisionAPI_WPF_Samples
             //
             // Create Project Oxford Vision API Service client
             //
-            VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey, "https://westcentralus.api.cognitive.microsoft.com/vision/v1.0");
+            VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey, SubscriptionEndpoint);
             Log("VisionServiceClient is created");
 
             //
@@ -103,7 +103,7 @@ namespace VisionAPI_WPF_Samples
             //
             // Create Project Oxford Vision API Service client
             //
-            VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey);
+            VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey, SubscriptionEndpoint);
             Log("VisionServiceClient is created");
 
             using (Stream imageFileStream = File.OpenRead(imageFilePath))
@@ -136,7 +136,7 @@ namespace VisionAPI_WPF_Samples
             //
             // Create Project Oxford Vision API Service client
             //
-            VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey);
+            VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey, SubscriptionEndpoint);
             Log("VisionServiceClient is created");
 
             //
@@ -183,7 +183,7 @@ namespace VisionAPI_WPF_Samples
         private async void LoadModelsButton_Click(object sender, RoutedEventArgs e)
         {
             _status.Text = "Loading models...";
-            
+
             //
             // Get the avaialable models
             //
