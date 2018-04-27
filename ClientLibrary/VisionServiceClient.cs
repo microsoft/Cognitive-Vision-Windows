@@ -381,45 +381,45 @@ namespace Microsoft.ProjectOxford.Vision
         }
 
         /// <summary>
-        /// Recognizes the handwriting text asynchronous.
+        /// Recognizes the text asynchronous.
         /// </summary>
         /// <param name="imageUrl">The image URL.</param>
-        /// <returns>HandwritingRecognitionOperation created</returns>
-        public async Task<HandwritingRecognitionOperation> CreateHandwritingRecognitionOperationAsync(string imageUrl)
+        /// <returns>TextRecognitionOperation created</returns>
+        public async Task<TextRecognitionOperation> CreateTextRecognitionOperationAsync(string imageUrl)
         {
-            string requestUrl = string.Format("{0}/recognizeText?handwriting=true&{1}={2}", ServiceHost, _subscriptionKeyName, _subscriptionKey);
+            string requestUrl = string.Format("{0}/recognizeText?mode=Printed&{1}={2}", ServiceHost, _subscriptionKeyName, _subscriptionKey);
             var request = WebRequest.Create(requestUrl);
 
             dynamic requestObject = new ExpandoObject();
             requestObject.url = imageUrl;
 
-            return await this.SendAsync<ExpandoObject, HandwritingRecognitionOperation>("POST", requestObject, request).ConfigureAwait(false);
+            return await this.SendAsync<ExpandoObject, TextRecognitionOperation>("POST", requestObject, request).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// Recognizes the handwriting text asynchronous.
+        /// Recognizes the text asynchronous.
         /// </summary>
         /// <param name="imageStream">The image stream.</param>
-        /// <returns>HandwritingRecognitionOperation created</returns>
-        public async Task<HandwritingRecognitionOperation> CreateHandwritingRecognitionOperationAsync(Stream imageStream)
+        /// <returns>TextRecognitionOperation created</returns>
+        public async Task<TextRecognitionOperation> CreateTextRecognitionOperationAsync(Stream imageStream)
         {
-            string requestUrl = string.Format("{0}/recognizeText?handwriting=true&{1}={2}", ServiceHost, _subscriptionKeyName, _subscriptionKey);
+            string requestUrl = string.Format("{0}/recognizeText?mode=Printed&{1}={2}", ServiceHost, _subscriptionKeyName, _subscriptionKey);
             var request = WebRequest.Create(requestUrl);
 
-            return await this.SendAsync<Stream, HandwritingRecognitionOperation>("POST", imageStream, request).ConfigureAwait(false);
+            return await this.SendAsync<Stream, TextRecognitionOperation>("POST", imageStream, request).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// Get HandwritingRecognitionOperationResult
+        /// Get TextRecognitionOperationResult
         /// </summary>
-        /// <param name="opeartion">HandwritingRecognitionOperation object</param>
-        /// <returns>HandwritingRecognitionOperationResult</returns>
-        public async Task<HandwritingRecognitionOperationResult> GetHandwritingRecognitionOperationResultAsync(HandwritingRecognitionOperation opeartion)
+        /// <param name="opeartion">TextRecognitionOperation object</param>
+        /// <returns>TextRecognitionOperationResult</returns>
+        public async Task<TextRecognitionOperationResult> GetTextRecognitionOperationResultAsync(TextRecognitionOperation opeartion)
         {
             string requestUrl = string.Format("{0}?{1}={2}", opeartion.Url, _subscriptionKeyName, _subscriptionKey);
             var request = WebRequest.Create(requestUrl);
 
-            return await this.GetAsync<HandwritingRecognitionOperationResult>("Get", request).ConfigureAwait(false);
+            return await this.GetAsync<TextRecognitionOperationResult>("Get", request).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -772,7 +772,7 @@ namespace Microsoft.ProjectOxford.Vision
 
                             ClientError errorCollection = JsonConvert.DeserializeObject<ClientError>(errorObjectString);
 
-                            // HandwritingOcr error message use the latest format, so add the logic to handle this issue.
+                            // OneOCR error message use the latest format, so add the logic to handle this issue.
                             if (errorCollection.Code == null && errorCollection.Message == null)
                             {
                                 var errorType = new { Error = new ClientError() };
