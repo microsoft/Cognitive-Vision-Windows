@@ -34,16 +34,29 @@
 namespace Microsoft.ProjectOxford.Vision.Contract
 {
     /// <summary>
-    /// The class of HandwritingTextResult
+    /// The enum of TextRecognitionOperationStatus
     /// </summary>
-    public class HandwritingTextResult
+    //[JsonConverter(typeof(StringEnumConverter))]
+    public enum TextRecognitionOperationStatus
     {
         /// <summary>
-        /// Gets or sets the lines.
+        /// not started
         /// </summary>
-        /// <value>
-        /// The lines.
-        /// </value>
-        public HandwritingTextLine[] Lines { get; set; }
+        NotStarted,
+
+        /// <summary>
+        /// running
+        /// </summary>
+        Running,
+
+        /// <summary>
+        /// succeeded
+        /// </summary>
+        Succeeded,
+
+        /// <summary>
+        /// failed
+        /// </summary>
+        Failed,
     }
 }

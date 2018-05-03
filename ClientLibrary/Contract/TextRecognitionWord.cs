@@ -36,9 +36,9 @@ using Newtonsoft.Json;
 namespace Microsoft.ProjectOxford.Vision.Contract
 {
     /// <summary>
-    /// The class of HandwritingTextLine.
+    /// The class of TextRecognitionWord
     /// </summary>
-    public class HandwritingTextLine
+    public class TextRecognitionWord
     {
         /// <summary>
         /// Gets or sets the bounding box.
@@ -49,12 +49,12 @@ namespace Microsoft.ProjectOxford.Vision.Contract
         public int[] BoundingBox { get; set; }
 
         /// <summary>
-        /// Gets or sets the words.
+        /// Gets or sets the text.
         /// </summary>
         /// <value>
-        /// The words.
+        /// The text.
         /// </value>
-        public HandwritingTextWord[] Words { get; set; }
+        public string Text { get; set; }
 
         /// <summary>
         /// Gets the polygon
