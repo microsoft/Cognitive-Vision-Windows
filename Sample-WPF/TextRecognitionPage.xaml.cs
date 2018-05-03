@@ -35,12 +35,13 @@ namespace VisionAPI_WPF_Samples
         /// Uploads the image to Project Oxford and performs Text Recognition
         /// </summary>
         /// <param name="imageFilePath">The image file path.</param>
+        /// <param name="mode">The recognition mode.</param>
         /// <returns></returns>
-        private async Task<TextRecognitionOperationResult> UploadAndRecognizeImage(string imageFilePath, string recoMode)
+        private async Task<TextRecognitionOperationResult> UploadAndRecognizeImage(string imageFilePath, string mode)
         {
             using (Stream imageFileStream = File.OpenRead(imageFilePath))
             {
-                return await RecognizeAsync(async (VisionServiceClient VisionServiceClient) => await VisionServiceClient.CreateTextRecognitionOperationAsync(imageFileStream));
+                return await RecognizeAsync(async (VisionServiceClient VisionServiceClient) => await VisionServiceClient.CreateTextRecognitionOperationAsync(imageFileStream, mode));
             }
         }
 
@@ -48,10 +49,11 @@ namespace VisionAPI_WPF_Samples
         /// Sends a url to Project Oxford and performs Text Recognition
         /// </summary>
         /// <param name="imageUrl">The url to perform recognition on</param>
+        /// <param name="mode">The recognition mode.</param>
         /// <returns></returns>
-        private async Task<TextRecognitionOperationResult> RecognizeUrl(string imageUrl, string recoMode)
+        private async Task<TextRecognitionOperationResult> RecognizeUrl(string imageUrl, string mode)
         {
-            return await RecognizeAsync(async (VisionServiceClient VisionServiceClient) => await VisionServiceClient.CreateTextRecognitionOperationAsync(imageUrl));
+            return await RecognizeAsync(async (VisionServiceClient VisionServiceClient) => await VisionServiceClient.CreateTextRecognitionOperationAsync(imageUrl, mode));
         }
 
         private async Task<TextRecognitionOperationResult> RecognizeAsync(Func<VisionServiceClient, Task<TextRecognitionOperation>> Func)
@@ -107,29 +109,32 @@ namespace VisionAPI_WPF_Samples
         /// <returns></returns>
         protected override async Task DoWork(Uri imageUri, bool upload)
         {
-            _status.Text = "Performing text recognition...";
+            string mode = printedRadioButton.IsChecked ?? true ? "Printed" : "Handwritten";
 
-            //////////Update
-            string recoMode = printedRadioButton.IsChecked ?? true ? "Printed" : "Handwritten";
+            string logInfo = string.Format("Performing text recognition using {0} Mode...", mode);
+            _status.Text = logInfo;
+            Log(logInfo);
             //
             // Either upload an image, or supply a url
             //
             TextRecognitionOperationResult result;
             if (upload)
             {
-                result = await UploadAndRecognizeImage(imageUri.LocalPath, recoMode);
+                result = await UploadAndRecognizeImage(imageUri.LocalPath, mode);
             }
             else
             {
-                result = await RecognizeUrl(imageUri.AbsoluteUri, recoMode);
+                result = await RecognizeUrl(imageUri.AbsoluteUri, mode);
             }
-            _status.Text = "Text recognition finished!";
+
+            logInfo = "Text recognition finished!";
+            _status.Text = logInfo;
 
             //
             // Log analysis result in the log window
             //
             LogTextRecognitionResult(result);
-            Log("Text recognition finished!");
+            Log(logInfo);
         }
     }
 }

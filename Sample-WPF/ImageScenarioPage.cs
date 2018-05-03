@@ -125,7 +125,7 @@ namespace VisionAPI_WPF_Samples
         /// <param name="message">The message</param>
         internal void Log(string message)
         {
-           mainWindow.ScenarioControl.Log(message);
+            mainWindow.ScenarioControl.Log(message);
         }
 
         /// <summary>
@@ -255,7 +255,7 @@ namespace VisionAPI_WPF_Samples
             }
 
         }
-        
+
         /// <summary>
         /// Log the result of an analysis in domain result
         /// </summary>
@@ -267,7 +267,7 @@ namespace VisionAPI_WPF_Samples
                 Log("Image Format : " + result.Metadata.Format);
                 Log("Image Dimensions : " + result.Metadata.Width + " x " + result.Metadata.Height);
             }
-            
+
             if (result.Result != null)
             {
                 Log("Result : " + result.Result.ToString());
@@ -320,11 +320,7 @@ namespace VisionAPI_WPF_Samples
                 stringBuilder.AppendLine();
                 foreach (var line in results.RecognitionResult.Lines)
                 {
-                    foreach (var word in line.Words)
-                    {
-                        stringBuilder.Append(word.Text);
-                        stringBuilder.Append(" ");
-                    }
+                    stringBuilder.Append(line.Text);
 
                     stringBuilder.AppendLine();
                     stringBuilder.AppendLine();
@@ -339,7 +335,7 @@ namespace VisionAPI_WPF_Samples
             {
                 Log(stringBuilder.ToString());
             }
-            
+
             if (results.Status == TextRecognitionOperationStatus.Running || results.Status == TextRecognitionOperationStatus.NotStarted)
             {
                 Log(string.Format("Status is {0} after try {1} times", results.Status, MaxRetryTimes));

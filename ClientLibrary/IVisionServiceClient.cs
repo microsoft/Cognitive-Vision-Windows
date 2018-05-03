@@ -171,15 +171,17 @@ namespace Microsoft.ProjectOxford.Vision
         /// TextRecognitionOperation
         /// </summary>
         /// <param name="imageUrl">Image url</param>
+        /// <param name="mode">The recognition mode.</param>
         /// <returns>TextRecognitionOperation created</returns>
-        Task<TextRecognitionOperation> CreateTextRecognitionOperationAsync(string imageUrl);
+        Task<TextRecognitionOperation> CreateTextRecognitionOperationAsync(string imageUrl, string mode);
 
         /// <summary>
         /// Create TextRecognitionOperation
         /// </summary>
         /// <param name="imageStream">Image content is byte array.</param>
+        /// <param name="mode">The recognition mode.</param>
         /// <returns>TextRecognitionOperation created</returns>
-        Task<TextRecognitionOperation> CreateTextRecognitionOperationAsync(Stream imageStream);
+        Task<TextRecognitionOperation> CreateTextRecognitionOperationAsync(Stream imageStream, string mode);
 
         /// <summary>
         /// Get TextRecognitionOperationResult

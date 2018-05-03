@@ -55,7 +55,7 @@ namespace Microsoft.ProjectOxford.Vision
         /// <summary>
         /// The service host
         /// </summary>
-        private const string DEFAULT_API_ROOT = "https://westcentralus.api.cognitive.microsoft.com/vision/v1.0";
+        private const string DEFAULT_API_ROOT = "https://westcentralus.api.cognitive.microsoft.com/vision/v2.0";
 
         /// <summary>
         /// Host root, overridable by subclasses, intended for testing.
@@ -384,10 +384,11 @@ namespace Microsoft.ProjectOxford.Vision
         /// Recognizes the text asynchronous.
         /// </summary>
         /// <param name="imageUrl">The image URL.</param>
+        /// <param name="mode">The recognition mode.</param>
         /// <returns>TextRecognitionOperation created</returns>
-        public async Task<TextRecognitionOperation> CreateTextRecognitionOperationAsync(string imageUrl)
+        public async Task<TextRecognitionOperation> CreateTextRecognitionOperationAsync(string imageUrl, string mode)
         {
-            string requestUrl = string.Format("{0}/recognizeText?mode=Printed&{1}={2}", ServiceHost, _subscriptionKeyName, _subscriptionKey);
+            string requestUrl = string.Format("{0}/recognizeText?mode={1}&{2}={3}", ServiceHost, mode, _subscriptionKeyName, _subscriptionKey);
             var request = WebRequest.Create(requestUrl);
 
             dynamic requestObject = new ExpandoObject();
@@ -400,10 +401,11 @@ namespace Microsoft.ProjectOxford.Vision
         /// Recognizes the text asynchronous.
         /// </summary>
         /// <param name="imageStream">The image stream.</param>
+        /// <param name="mode">The recognition mode.</param>
         /// <returns>TextRecognitionOperation created</returns>
-        public async Task<TextRecognitionOperation> CreateTextRecognitionOperationAsync(Stream imageStream)
+        public async Task<TextRecognitionOperation> CreateTextRecognitionOperationAsync(Stream imageStream, string mode)
         {
-            string requestUrl = string.Format("{0}/recognizeText?mode=Printed&{1}={2}", ServiceHost, _subscriptionKeyName, _subscriptionKey);
+            string requestUrl = string.Format("{0}/recognizeText?mode={1}&{2}={3}", ServiceHost, mode, _subscriptionKeyName, _subscriptionKey);
             var request = WebRequest.Create(requestUrl);
 
             return await this.SendAsync<Stream, TextRecognitionOperation>("POST", imageStream, request).ConfigureAwait(false);

@@ -18,7 +18,7 @@
         <StackPanel Orientation="Vertical" Grid.Row="1" >
             <TextBlock Margin="5, 5, 0, 0" Text="Choose an image to recognize by clicking either [Load Image] or paste in an image url and then clicking [Recognize Text]"/>
             <StackPanel Orientation="Horizontal">
-                <TextBlock Margin="5, 2, 5, 0">TextType:</TextBlock>
+                <TextBlock Margin="5, 2, 5, 0">Mode:</TextBlock>
                 <RadioButton Margin="5, 5, 5, 0" GroupName="TextType" Name="printedRadioButton" IsChecked="True">Printed</RadioButton>
                 <RadioButton Margin="5, 5, 5, 0" GroupName="TextType" Name="handwrittenRadioButton">Handwritten</RadioButton>
             </StackPanel>
