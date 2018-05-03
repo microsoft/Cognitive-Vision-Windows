@@ -125,7 +125,7 @@ namespace VisionAPI_WPF_Samples
         /// <param name="message">The message</param>
         internal void Log(string message)
         {
-           mainWindow.ScenarioControl.Log(message);
+            mainWindow.ScenarioControl.Log(message);
         }
 
         /// <summary>
@@ -255,7 +255,7 @@ namespace VisionAPI_WPF_Samples
             }
 
         }
-        
+
         /// <summary>
         /// Log the result of an analysis in domain result
         /// </summary>
@@ -267,7 +267,7 @@ namespace VisionAPI_WPF_Samples
                 Log("Image Format : " + result.Metadata.Format);
                 Log("Image Dimensions : " + result.Metadata.Width + " x " + result.Metadata.Height);
             }
-            
+
             if (result.Result != null)
             {
                 Log("Result : " + result.Result.ToString());
@@ -307,10 +307,10 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Log text from the given HandwritingRecognitionOperationResult object.
+        /// Log text from the given TextRecognitionOperationResult object.
         /// </summary>
-        /// <param name="results">The HandwritingRecognitionOperationResult.</param>
-        protected void LogHandwritingRecognitionResult(HandwritingRecognitionOperationResult results)
+        /// <param name="results">The TextRecognitionOperationResult.</param>
+        protected void LogTextRecognitionResult(TextRecognitionOperationResult results)
         {
             StringBuilder stringBuilder = new StringBuilder();
 
@@ -320,11 +320,7 @@ namespace VisionAPI_WPF_Samples
                 stringBuilder.AppendLine();
                 foreach (var line in results.RecognitionResult.Lines)
                 {
-                    foreach (var word in line.Words)
-                    {
-                        stringBuilder.Append(word.Text);
-                        stringBuilder.Append(" ");
-                    }
+                    stringBuilder.Append(line.Text);
 
                     stringBuilder.AppendLine();
                     stringBuilder.AppendLine();
@@ -339,8 +335,8 @@ namespace VisionAPI_WPF_Samples
             {
                 Log(stringBuilder.ToString());
             }
-            
-            if (results.Status == HandwritingRecognitionOperationStatus.Running || results.Status == HandwritingRecognitionOperationStatus.NotStarted)
+
+            if (results.Status == TextRecognitionOperationStatus.Running || results.Status == TextRecognitionOperationStatus.NotStarted)
             {
                 Log(string.Format("Status is {0} after try {1} times", results.Status, MaxRetryTimes));
             }

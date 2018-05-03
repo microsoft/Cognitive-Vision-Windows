@@ -20,11 +20,11 @@ using System.IO;
 namespace VisionAPI_WPF_Samples
 {
     /// <summary>
-    /// Interaction logic for HandwritingOCRPage.xaml
+    /// Interaction logic for TextRecognitionPage.xaml
     /// </summary>
-    public partial class HandwritingRecognitionPage : ImageScenarioPage
+    public partial class TextRecognitionPage : ImageScenarioPage
     {
-        public HandwritingRecognitionPage()
+        public TextRecognitionPage()
         {
             InitializeComponent();
             this.PreviewImage = _imagePreview;
@@ -32,29 +32,31 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Uploads the image to Project Oxford and performs Handwriting Recognition
+        /// Uploads the image to Project Oxford and performs Text Recognition
         /// </summary>
         /// <param name="imageFilePath">The image file path.</param>
+        /// <param name="mode">The recognition mode.</param>
         /// <returns></returns>
-        private async Task<HandwritingRecognitionOperationResult> UploadAndRecognizeImage(string imageFilePath)
+        private async Task<TextRecognitionOperationResult> UploadAndRecognizeImage(string imageFilePath, string mode)
         {
             using (Stream imageFileStream = File.OpenRead(imageFilePath))
             {
-                return await RecognizeAsync(async (VisionServiceClient VisionServiceClient) => await VisionServiceClient.CreateHandwritingRecognitionOperationAsync(imageFileStream));
+                return await RecognizeAsync(async (VisionServiceClient VisionServiceClient) => await VisionServiceClient.CreateTextRecognitionOperationAsync(imageFileStream, mode));
             }
         }
 
         /// <summary>
-        /// Sends a url to Project Oxford and performs Handwriting Recognition
+        /// Sends a url to Project Oxford and performs Text Recognition
         /// </summary>
         /// <param name="imageUrl">The url to perform recognition on</param>
+        /// <param name="mode">The recognition mode.</param>
         /// <returns></returns>
-        private async Task<HandwritingRecognitionOperationResult> RecognizeUrl(string imageUrl)
+        private async Task<TextRecognitionOperationResult> RecognizeUrl(string imageUrl, string mode)
         {
-            return await RecognizeAsync(async (VisionServiceClient VisionServiceClient) => await VisionServiceClient.CreateHandwritingRecognitionOperationAsync(imageUrl));
+            return await RecognizeAsync(async (VisionServiceClient VisionServiceClient) => await VisionServiceClient.CreateTextRecognitionOperationAsync(imageUrl, mode));
         }
 
-        private async Task<HandwritingRecognitionOperationResult> RecognizeAsync(Func<VisionServiceClient, Task<HandwritingRecognitionOperation>> Func)
+        private async Task<TextRecognitionOperationResult> RecognizeAsync(Func<VisionServiceClient, Task<TextRecognitionOperation>> Func)
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
@@ -63,32 +65,32 @@ namespace VisionAPI_WPF_Samples
             //
             // Create Project Oxford Vision API Service client
             //
-            VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey, "https://westcentralus.api.cognitive.microsoft.com/vision/v1.0");
+            VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey, "https://westus.api.cognitive.microsoft.com/vision/v2.0");
             Log("VisionServiceClient is created");
 
-            HandwritingRecognitionOperationResult result;
+            TextRecognitionOperationResult result;
             try
             {
-                Log("Calling VisionServiceClient.CreateHandwritingRecognitionOperationAsync()...");
-                HandwritingRecognitionOperation operation = await Func(VisionServiceClient);
+                Log("Calling VisionServiceClient.CreateTextRecognitionOperationAsync()...");
+                TextRecognitionOperation operation = await Func(VisionServiceClient);
 
-                Log("Calling VisionServiceClient.GetHandwritingRecognitionOperationResultAsync()...");
-                result = await VisionServiceClient.GetHandwritingRecognitionOperationResultAsync(operation);
+                Log("Calling VisionServiceClient.GetTextRecognitionOperationResultAsync()...");
+                result = await VisionServiceClient.GetTextRecognitionOperationResultAsync(operation);
 
                 int i = 0;
-                while ((result.Status == HandwritingRecognitionOperationStatus.Running || result.Status == HandwritingRecognitionOperationStatus.NotStarted) && i++ < MaxRetryTimes)
+                while ((result.Status == TextRecognitionOperationStatus.Running || result.Status == TextRecognitionOperationStatus.NotStarted) && i++ < MaxRetryTimes)
                 {
                     Log(string.Format("Server status: {0}, wait {1} seconds...", result.Status, QueryWaitTimeInSecond));
                     await Task.Delay(QueryWaitTimeInSecond);
 
-                    Log("Calling VisionServiceClient.GetHandwritingRecognitionOperationResultAsync()...");
-                    result = await VisionServiceClient.GetHandwritingRecognitionOperationResultAsync(operation);
+                    Log("Calling VisionServiceClient.GetTextRecognitionOperationResultAsync()...");
+                    result = await VisionServiceClient.GetTextRecognitionOperationResultAsync(operation);
                 }
 
             }
             catch (ClientException ex)
             {
-                result = new HandwritingRecognitionOperationResult() { Status = HandwritingRecognitionOperationStatus.Failed };
+                result = new TextRecognitionOperationResult() { Status = TextRecognitionOperationStatus.Failed };
                 Log(ex.Error.Message);
             }
 
@@ -107,27 +109,32 @@ namespace VisionAPI_WPF_Samples
         /// <returns></returns>
         protected override async Task DoWork(Uri imageUri, bool upload)
         {
-            _status.Text = "Performing Handwriting recognition...";
+            string mode = printedRadioButton.IsChecked ?? true ? "Printed" : "Handwritten";
 
+            string logInfo = string.Format("Performing text recognition using {0} Mode...", mode);
+            _status.Text = logInfo;
+            Log(logInfo);
             //
             // Either upload an image, or supply a url
             //
-            HandwritingRecognitionOperationResult result;
+            TextRecognitionOperationResult result;
             if (upload)
             {
-                result = await UploadAndRecognizeImage(imageUri.LocalPath);
+                result = await UploadAndRecognizeImage(imageUri.LocalPath, mode);
             }
             else
             {
-                result = await RecognizeUrl(imageUri.AbsoluteUri);
+                result = await RecognizeUrl(imageUri.AbsoluteUri, mode);
             }
-            _status.Text = "Handwriting recognition finished!";
+
+            logInfo = "Text recognition finished!";
+            _status.Text = logInfo;
 
             //
             // Log analysis result in the log window
             //
-            LogHandwritingRecognitionResult(result);
-            Log("Handwriting recognition finished!");
+            LogTextRecognitionResult(result);
+            Log(logInfo);
         }
     }
 }
