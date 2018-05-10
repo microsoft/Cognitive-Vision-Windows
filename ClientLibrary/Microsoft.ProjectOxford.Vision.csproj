@@ -50,6 +50,7 @@
     <Compile Include="Contract\Face.cs" />
     <Compile Include="Contract\FaceRectangle.cs" />
     <Compile Include="Contract\TextRecognitionLine.cs" />
+    <Compile Include="Contract\TextRecognitionMode.cs" />
     <Compile Include="Contract\TextRecognitionOperation.cs" />
     <Compile Include="Contract\TextRecognitionOperationResult.cs" />
     <Compile Include="Contract\TextRecognitionOperationStatus.cs" />

@@ -386,9 +386,9 @@ namespace Microsoft.ProjectOxford.Vision
         /// <param name="imageUrl">The image URL.</param>
         /// <param name="mode">The recognition mode.</param>
         /// <returns>TextRecognitionOperation created</returns>
-        public async Task<TextRecognitionOperation> CreateTextRecognitionOperationAsync(string imageUrl, string mode)
+        public async Task<TextRecognitionOperation> CreateTextRecognitionOperationAsync(string imageUrl, TextRecognitionMode mode)
         {
-            string requestUrl = string.Format("{0}/recognizeText?mode={1}&{2}={3}", ServiceHost, mode, _subscriptionKeyName, _subscriptionKey);
+            string requestUrl = string.Format("{0}/recognizeText?mode={1}&{2}={3}", ServiceHost, mode.ToString(), _subscriptionKeyName, _subscriptionKey);
             var request = WebRequest.Create(requestUrl);
 
             dynamic requestObject = new ExpandoObject();
@@ -403,9 +403,9 @@ namespace Microsoft.ProjectOxford.Vision
         /// <param name="imageStream">The image stream.</param>
         /// <param name="mode">The recognition mode.</param>
         /// <returns>TextRecognitionOperation created</returns>
-        public async Task<TextRecognitionOperation> CreateTextRecognitionOperationAsync(Stream imageStream, string mode)
+        public async Task<TextRecognitionOperation> CreateTextRecognitionOperationAsync(Stream imageStream, TextRecognitionMode mode)
         {
-            string requestUrl = string.Format("{0}/recognizeText?mode={1}&{2}={3}", ServiceHost, mode, _subscriptionKeyName, _subscriptionKey);
+            string requestUrl = string.Format("{0}/recognizeText?mode={1}&{2}={3}", ServiceHost, mode.ToString(), _subscriptionKeyName, _subscriptionKey);
             var request = WebRequest.Create(requestUrl);
 
             return await this.SendAsync<Stream, TextRecognitionOperation>("POST", imageStream, request).ConfigureAwait(false);
