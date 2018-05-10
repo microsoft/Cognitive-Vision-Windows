@@ -37,7 +37,7 @@ namespace VisionAPI_WPF_Samples
         /// <param name="imageFilePath">The image file path.</param>
         /// <param name="mode">The recognition mode.</param>
         /// <returns></returns>
-        private async Task<TextRecognitionOperationResult> UploadAndRecognizeImage(string imageFilePath, string mode)
+        private async Task<TextRecognitionOperationResult> UploadAndRecognizeImage(string imageFilePath, TextRecognitionMode mode)
         {
             using (Stream imageFileStream = File.OpenRead(imageFilePath))
             {
@@ -51,7 +51,7 @@ namespace VisionAPI_WPF_Samples
         /// <param name="imageUrl">The url to perform recognition on</param>
         /// <param name="mode">The recognition mode.</param>
         /// <returns></returns>
-        private async Task<TextRecognitionOperationResult> RecognizeUrl(string imageUrl, string mode)
+        private async Task<TextRecognitionOperationResult> RecognizeUrl(string imageUrl, TextRecognitionMode mode)
         {
             return await RecognizeAsync(async (VisionServiceClient VisionServiceClient) => await VisionServiceClient.CreateTextRecognitionOperationAsync(imageUrl, mode));
         }
@@ -109,7 +109,7 @@ namespace VisionAPI_WPF_Samples
         /// <returns></returns>
         protected override async Task DoWork(Uri imageUri, bool upload)
         {
-            string mode = printedRadioButton.IsChecked ?? true ? "Printed" : "Handwritten";
+            TextRecognitionMode mode = printedRadioButton.IsChecked ?? true ? TextRecognitionMode.Printed : TextRecognitionMode.Handwritten;
 
             string logInfo = string.Format("Performing text recognition using {0} Mode...", mode);
             _status.Text = logInfo;
