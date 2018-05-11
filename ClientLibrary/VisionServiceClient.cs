@@ -774,7 +774,7 @@ namespace Microsoft.ProjectOxford.Vision
 
                             ClientError errorCollection = JsonConvert.DeserializeObject<ClientError>(errorObjectString);
 
-                            // OneOCR error message use the latest format, so add the logic to handle this issue.
+                            // Some error messages use a different format, add the logic to handle this issue.
                             if (errorCollection.Code == null && errorCollection.Message == null)
                             {
                                 var errorType = new { Error = new ClientError() };

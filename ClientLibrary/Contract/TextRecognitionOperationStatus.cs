@@ -36,7 +36,6 @@ namespace Microsoft.ProjectOxford.Vision.Contract
     /// <summary>
     /// The enum of TextRecognitionOperationStatus
     /// </summary>
-    //[JsonConverter(typeof(StringEnumConverter))]
     public enum TextRecognitionOperationStatus
     {
         /// <summary>

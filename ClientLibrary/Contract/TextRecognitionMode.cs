@@ -36,7 +36,6 @@ namespace Microsoft.ProjectOxford.Vision.Contract
     /// <summary>
     /// The enum of TextRecognitionMode
     /// </summary>
-    //[JsonConverter(typeof(StringEnumConverter))]
     public enum TextRecognitionMode
     {
         /// <summary>
