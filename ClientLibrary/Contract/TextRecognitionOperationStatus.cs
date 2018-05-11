@@ -34,16 +34,28 @@
 namespace Microsoft.ProjectOxford.Vision.Contract
 {
     /// <summary>
-    /// The class of HandwritingRecognitionOperation
+    /// The enum of TextRecognitionOperationStatus
     /// </summary>
-    public class HandwritingRecognitionOperation
+    public enum TextRecognitionOperationStatus
     {
         /// <summary>
-        /// Gets or sets the Url
+        /// not started
         /// </summary>
-        /// <value>
-        /// The Url
-        /// </value>
-        public string Url { get; set; }
+        NotStarted,
+
+        /// <summary>
+        /// running
+        /// </summary>
+        Running,
+
+        /// <summary>
+        /// succeeded
+        /// </summary>
+        Succeeded,
+
+        /// <summary>
+        /// failed
+        /// </summary>
+        Failed,
     }
 }

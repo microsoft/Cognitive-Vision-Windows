@@ -34,16 +34,16 @@
 namespace Microsoft.ProjectOxford.Vision.Contract
 {
     /// <summary>
-    /// The class of HandwritingTextResult
+    /// The class of TextRecognitionOperation
     /// </summary>
-    public class HandwritingTextResult
+    public class TextRecognitionOperation
     {
         /// <summary>
-        /// Gets or sets the lines.
+        /// Gets or sets the Url
         /// </summary>
         /// <value>
-        /// The lines.
+        /// The Url
         /// </value>
-        public HandwritingTextLine[] Lines { get; set; }
+        public string Url { get; set; }
     }
 }

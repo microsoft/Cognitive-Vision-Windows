@@ -31,44 +31,21 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using Newtonsoft.Json;
-
 namespace Microsoft.ProjectOxford.Vision.Contract
 {
     /// <summary>
-    /// The class of HandwritingTextLine.
+    /// The enum of TextRecognitionMode
     /// </summary>
-    public class HandwritingTextLine
+    public enum TextRecognitionMode
     {
         /// <summary>
-        /// Gets or sets the bounding box.
+        /// Handwritten
         /// </summary>
-        /// <value>
-        /// The bounding box.
-        /// </value>
-        public int[] BoundingBox { get; set; }
+        Handwritten,
 
         /// <summary>
-        /// Gets or sets the words.
+        /// Printed
         /// </summary>
-        /// <value>
-        /// The words.
-        /// </value>
-        public HandwritingTextWord[] Words { get; set; }
-
-        /// <summary>
-        /// Gets the polygon
-        /// </summary>
-        /// <value>
-        /// The polygon
-        /// </value>
-        [JsonIgnore]
-        public Polygon Polygon
-        {
-            get
-            {
-                return Polygon.FromArray(this.BoundingBox);
-            }
-        }
+        Printed,
     }
 }

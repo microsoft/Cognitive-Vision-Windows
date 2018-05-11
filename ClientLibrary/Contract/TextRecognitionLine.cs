@@ -31,32 +31,52 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using Newtonsoft.Json;
+
 namespace Microsoft.ProjectOxford.Vision.Contract
 {
     /// <summary>
-    /// The enum of HandwritingRecognitionOperationStatus
+    /// The class of TextRecognitionLine.
     /// </summary>
-    //[JsonConverter(typeof(StringEnumConverter))]
-    public enum HandwritingRecognitionOperationStatus
+    public class TextRecognitionLine
     {
         /// <summary>
-        /// not started
+        /// Gets or sets the bounding box.
         /// </summary>
-        NotStarted,
+        /// <value>
+        /// The bounding box.
+        /// </value>
+        public int[] BoundingBox { get; set; }
 
         /// <summary>
-        /// running
+        /// Gets or sets the text.
         /// </summary>
-        Running,
+        /// <value>
+        /// The text.
+        /// </value>
+        public string Text { get; set; }
 
         /// <summary>
-        /// succeeded
+        /// Gets or sets the words.
         /// </summary>
-        Succeeded,
+        /// <value>
+        /// The words.
+        /// </value>
+        public TextRecognitionWord[] Words { get; set; }
 
         /// <summary>
-        /// failed
+        /// Gets the polygon
         /// </summary>
-        Failed,
+        /// <value>
+        /// The polygon
+        /// </value>
+        [JsonIgnore]
+        public Polygon Polygon
+        {
+            get
+            {
+                return Polygon.FromArray(this.BoundingBox);
+            }
+        }
     }
 }
