@@ -64,7 +64,7 @@ namespace VisionAPI_WPF_Samples
                 new Scenario { Title = "Describe Image", PageClass = typeof(DescribePage) },
                 new Scenario { Title = "Generate Tags", PageClass = typeof(TagsPage) },
                 new Scenario { Title = "Recognize Text (OCR)", PageClass = typeof(OCRPage) },
-                new Scenario { Title = "Recognize Handwriting Text (English)", PageClass = typeof(HandwritingRecognitionPage) },
+                new Scenario { Title = "OneOCR Recognize Text V2.0(English)", PageClass = typeof(TextRecognitionPage) },
                 new Scenario { Title = "Get Thumbnail", PageClass = typeof(ThumbnailPage) },
             };
         }
