@@ -35,7 +35,7 @@
                 </StackPanel>
                 <Button Click="LoadImageButton_Click" Margin="5, 5, 0, 0" Width="80" HorizontalAlignment="Left">Load Image</Button>
                 <StackPanel Orientation="Horizontal" Margin="5, 5, 0, 0">
-                    <TextBox x:Name="_urlTextBox" Width="361" Margin="0, 5, 0, 0">https://oxfordportal.blob.core.windows.net/vision/Analysis/1-1.jpg</TextBox>
+                    <TextBox x:Name="_urlTextBox" Width="361" Margin="0, 5, 0, 0">https://upload.wikimedia.org/wikipedia/commons/d/d9/Bill_gates_portrait.jpg</TextBox>
                     <Button Click="SubmitUriButton_Click" Margin="5, 5, 0, 0">Analyze</Button>
                 </StackPanel>
             </StackPanel>

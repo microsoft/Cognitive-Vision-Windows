@@ -19,7 +19,7 @@
             <TextBlock Margin="5, 5, 0, 0" Text="Choose an image to recognize by clicking either [Load Image] or paste in an image url and then clicking [Recognize Text]"/>
             <Button Click="LoadImageButton_Click" Margin="5, 5, 0, 0" Width="80" HorizontalAlignment="Left">Load Image</Button>
             <StackPanel Orientation="Horizontal" Margin="5, 5, 0, 0">
-                <TextBox x:Name="_urlTextBox" Width="361" Margin="0, 5, 0, 0">https://portalstoragewu.azureedge.net/vision/HandWritingOCR/6.jpg</TextBox>
+                <TextBox x:Name="_urlTextBox" Width="361" Margin="0, 5, 0, 0">https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Cursive_Writing_on_Notebook_paper.jpg/800px-Cursive_Writing_on_Notebook_paper.jpg</TextBox>
                 <Button Click="SubmitUriButton_Click" Margin="5, 5, 0, 0">Recognize Text</Button>
             </StackPanel>
         </StackPanel>
