@@ -76,7 +76,7 @@ namespace VisionAPI_WPF_Samples
             //
             // Create Project Oxford Vision API Service client
             //
-            VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey, "https://westcentralus.api.cognitive.microsoft.com/vision/v1.0");
+            VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey, SubscriptionEndpoint);
             Log("VisionServiceClient is created");
 
             using (Stream imageFileStream = File.OpenRead(imageFilePath))
@@ -110,7 +110,7 @@ namespace VisionAPI_WPF_Samples
             //
             // Create Project Oxford Vision API Service client
             //
-            VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey);
+            VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey, SubscriptionEndpoint);
             Log("VisionServiceClient is created");
 
             //
