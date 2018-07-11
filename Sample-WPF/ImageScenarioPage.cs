@@ -63,6 +63,14 @@ namespace VisionAPI_WPF_Samples
             }
         }
 
+        protected string SubscriptionEndpoint
+        {
+            get
+            {
+                return mainWindow.ScenarioControl.SubscriptionEndpoint;
+            }
+        }
+
         /// <summary>
         /// Perform the work for this scenario
         /// </summary>
