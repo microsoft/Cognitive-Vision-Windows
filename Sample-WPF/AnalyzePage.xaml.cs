@@ -39,7 +39,7 @@ using System.Windows.Controls;
 
 // -----------------------------------------------------------------------
 // KEY SAMPLE CODE STARTS HERE
-// Use the following namesapce for VisionServiceClient
+// Use the following namespace for ComputerVisionClient.
 // -----------------------------------------------------------------------
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
@@ -50,7 +50,7 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 namespace VisionAPI_WPF_Samples
 {
     /// <summary>
-    /// Interaction logic for AnalyzePage.xaml
+    /// Interaction logic for AnalyzePage.xaml.
     /// </summary>
     public partial class AnalyzePage : ImageScenarioPage
     {
@@ -59,36 +59,36 @@ namespace VisionAPI_WPF_Samples
             InitializeComponent();
             this.PreviewImage = _imagePreview;
             this.URLTextBox = _urlTextBox;
-            this._language.ItemsSource = new RecognizeLanguage[] { RecognizeLanguage.EN, RecognizeLanguage.JA, RecognizeLanguage.PT, RecognizeLanguage.ZH };
+            this._language.ItemsSource = RecognizeLanguage.SupportedForAnalysis;
         }
 
         /// <summary>
-        /// Uploads the image to Project Oxford and performs analysis
+        /// Uploads the image to Cognitive Services and performs analysis.
         /// </summary>
         /// <param name="imageFilePath">The image file path.</param>
-        /// <returns></returns>
-        private async Task<ImageAnalysis> UploadAndAnalyzeImage(string imageFilePath)
+        /// <returns>Awaitable image analysis result.</returns>
+        private async Task<ImageAnalysis> UploadAndAnalyzeImageAsync(string imageFilePath)
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
             // -----------------------------------------------------------------------
 
             //
-            // Create Project Oxford Vision API Service client
+            // Create Cognitive Services Vision API Service client.
             //
-            using (var VisionServiceClient = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
+            using (var client = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
             {
-                Log("VisionServiceClient is created");
+                Log("ComputerVisionClient is created");
 
                 using (Stream imageFileStream = File.OpenRead(imageFilePath))
                 {
                     //
-                    // Analyze the image for all visual features
+                    // Analyze the image for all visual features.
                     //
-                    Log("Calling VisionServiceClient.AnalyzeImageAsync()...");
+                    Log("Calling ComputerVisionClient.AnalyzeImageInStreamAsync()...");
                     VisualFeatureTypes[] visualFeatures = GetSelectedVisualFeatures();
                     string language = (_language.SelectedItem as RecognizeLanguage).ShortCode;
-                    ImageAnalysis analysisResult = await VisionServiceClient.AnalyzeImageInStreamAsync(imageFileStream, visualFeatures, null, language);
+                    ImageAnalysis analysisResult = await client.AnalyzeImageInStreamAsync(imageFileStream, visualFeatures, null, language);
                     return analysisResult;
                 }
             }
@@ -99,30 +99,30 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Sends a url to Project Oxford and performs analysis
+        /// Sends a URL to Cognitive Services and performs analysis.
         /// </summary>
-        /// <param name="imageUrl">The url of the image to analyze</param>
-        /// <returns></returns>
-        private async Task<ImageAnalysis> AnalyzeUrl(string imageUrl)
+        /// <param name="imageUrl">The URL of the image to analyze.</param>
+        /// <returns>Awaitable image analysis result.</returns>
+        private async Task<ImageAnalysis> AnalyzeUrlAsync(string imageUrl)
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
             // -----------------------------------------------------------------------
 
             //
-            // Create Project Oxford Vision API Service client
+            // Create Cognitive Services Vision API Service client.
             //
-            using (var VisionServiceClient = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
+            using (var client = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
             {
-                Log("VisionServiceClient is created");
+                Log("ComputerVisionClient is created");
 
                 //
-                // Analyze the url for all visual features
+                // Analyze the URL for all visual features.
                 //
-                Log("Calling VisionServiceClient.AnalyzeImageAsync()...");
+                Log("Calling ComputerVisionClient.AnalyzeImageAsync()...");
                 VisualFeatureTypes[] visualFeatures = GetSelectedVisualFeatures();
                 string language = (_language.SelectedItem as RecognizeLanguage).ShortCode;
-                ImageAnalysis analysisResult = await VisionServiceClient.AnalyzeImageAsync(imageUrl, visualFeatures, null, language);
+                ImageAnalysis analysisResult = await client.AnalyzeImageAsync(imageUrl, visualFeatures, null, language);
                 return analysisResult;
             }
 
@@ -139,38 +139,37 @@ namespace VisionAPI_WPF_Samples
                 var control = child as CheckBox;
                 if (control?.IsChecked == true)
                 {
-                    visualFeatures.Add((VisualFeatureTypes)Enum.Parse(typeof(VisualFeatureTypes), control?.Content.ToString()));
+                    visualFeatures.Add((VisualFeatureTypes)Enum.Parse(typeof(VisualFeatureTypes), control?.Content?.ToString()));
                 }
             }
             return visualFeatures.Count > 0 ? visualFeatures.ToArray() : null;
         }
 
         /// <summary>
-        /// Perform the work for this scenario
+        /// Perform the work for this scenario.
         /// </summary>
-        /// <param name="imageUri">The URI of the image to run against the scenario</param>
-        /// <param name="upload">Upload the image to Project Oxford if [true]; submit the Uri as a remote url if [false];</param>
-        /// <returns></returns>
-        protected override async Task DoWork(Uri imageUri, bool upload)
+        /// <param name="imageUri">The URI of the image to run against the scenario.</param>
+        /// <param name="upload">Upload the image to Cognitive Services if [true]; submit the Uri as a remote URL if [false].</param>
+        protected override async Task DoWorkAsync(Uri imageUri, bool upload)
         {
             _status.Text = "Analyzing...";
 
             //
-            // Either upload an image, or supply a url
+            // Either upload an image, or supply a URL.
             //
             ImageAnalysis analysisResult;
             if (upload)
             {
-                analysisResult = await UploadAndAnalyzeImage(imageUri.LocalPath);
+                analysisResult = await UploadAndAnalyzeImageAsync(imageUri.LocalPath);
             }
             else
             {
-                analysisResult = await AnalyzeUrl(imageUri.AbsoluteUri);
+                analysisResult = await AnalyzeUrlAsync(imageUri.AbsoluteUri);
             }
             _status.Text = "Analyzing Done";
 
             //
-            // Log analysis result in the log window
+            // Log analysis result in the log window.
             //
             Log("");
             Log("Analysis Result:");

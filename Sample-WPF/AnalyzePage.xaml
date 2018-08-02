@@ -17,7 +17,7 @@
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Margin="5, 5, 0, 0" FontWeight="Bold">Analyze an Image</TextBlock>
         <StackPanel Orientation="Vertical" Grid.Row="1" >
-            <TextBlock Margin="5, 5, 0, 0">Please click either [Load Image] or paste in an image url and click [Analyze]</TextBlock>
+            <TextBlock Margin="5, 5, 0, 0">Please click either [Load Image] or paste in an image URL and click [Analyze]</TextBlock>
             <Grid x:Name="_visualFeatures" Margin="5, 5, 5, 0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="100"></ColumnDefinition>

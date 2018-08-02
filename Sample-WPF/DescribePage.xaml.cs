@@ -37,7 +37,7 @@ using System.Threading.Tasks;
 
 // -----------------------------------------------------------------------
 // KEY SAMPLE CODE STARTS HERE
-// Use the following namesapce for VisionServiceClient
+// Use the following namespace for ComputerVisionClient.
 // -----------------------------------------------------------------------
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
@@ -48,7 +48,7 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 namespace VisionAPI_WPF_Samples
 {
     /// <summary>
-    /// Interaction logic for DescribePage.xaml
+    /// Interaction logic for DescribePage.xaml.
     /// </summary>
     public partial class DescribePage : ImageScenarioPage
     {
@@ -57,35 +57,35 @@ namespace VisionAPI_WPF_Samples
             InitializeComponent();
             this.PreviewImage = _imagePreview;
             this.URLTextBox = _urlTextBox;
-            this._language.ItemsSource = new RecognizeLanguage[] { RecognizeLanguage.EN, RecognizeLanguage.JA, RecognizeLanguage.PT, RecognizeLanguage.ZH };
+            this._language.ItemsSource = RecognizeLanguage.SupportedForDescription;
         }
 
         /// <summary>
-        /// Uploads the image to Project Oxford and performs description
+        /// Uploads the image to Cognitive Services and performs description.
         /// </summary>
         /// <param name="imageFilePath">The image file path.</param>
-        /// <returns></returns>
-        private async Task<ImageDescription> UploadAndDescribeImage(string imageFilePath)
+        /// <returns>Awaitable image description.</returns>
+        private async Task<ImageDescription> UploadAndDescribeImageAsync(string imageFilePath)
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
             // -----------------------------------------------------------------------
 
             //
-            // Create Project Oxford Vision API Service client
+            // Create Cognitive Services Vision API Service client.
             //
-            using (var VisionServiceClient = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
+            using (var client = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
             {
-                Log("VisionServiceClient is created");
+                Log("ComputerVisionClient is created");
 
                 using (Stream imageFileStream = File.OpenRead(imageFilePath))
                 {
                     //
-                    // Upload and image and request three descriptions
+                    // Upload and image and request three descriptions.
                     //
-                    Log("Calling VisionServiceClient.DescribeAsync()...");
+                    Log("Calling ComputerVisionClient.DescribeImageInStreamAsync()...");
                     string language = (_language.SelectedItem as RecognizeLanguage).ShortCode;
-                    ImageDescription analysisResult = await VisionServiceClient.DescribeImageInStreamAsync(imageFileStream, 3, language);
+                    ImageDescription analysisResult = await client.DescribeImageInStreamAsync(imageFileStream, 3, language);
                     return analysisResult;
                 }
             }
@@ -96,29 +96,29 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Sends a url to Project Oxford and performs description
+        /// Sends a URL to Cognitive Services and performs description.
         /// </summary>
-        /// <param name="imageUrl">The url of the image to describe</param>
-        /// <returns></returns>
-        private async Task<ImageDescription> DescribeUrl(string imageUrl)
+        /// <param name="imageUrl">The URL of the image to describe.</param>
+        /// <returns>Awaitable image description.</returns>
+        private async Task<ImageDescription> DescribeUrlAsync(string imageUrl)
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
             // -----------------------------------------------------------------------
 
             //
-            // Create Project Oxford Vision API Service client
+            // Create Cognitive Services Vision API Service client.
             //
-            using (var VisionServiceClient = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
+            using (var client = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
             {
-                Log("VisionServiceClient is created");
+                Log("ComputerVisionClient is created");
 
                 //
-                // Describe the url and ask for three captions
+                // Describe the URL and ask for three captions.
                 //
-                Log("Calling VisionServiceClient.DescribeAsync()...");
+                Log("Calling ComputerVisionClient.DescribeImageAsync()...");
                 string language = (_language.SelectedItem as RecognizeLanguage).ShortCode;
-                ImageDescription analysisResult = await VisionServiceClient.DescribeImageAsync(imageUrl, 3, language);
+                ImageDescription analysisResult = await client.DescribeImageAsync(imageUrl, 3, language);
                 return analysisResult;
             }
 
@@ -128,31 +128,30 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Perform the work for this scenario
+        /// Perform the work for this scenario.
         /// </summary>
-        /// <param name="imageUri">The URI of the image to run against the scenario</param>
-        /// <param name="upload">Upload the image to Project Oxford if [true]; submit the Uri as a remote url if [false];</param>
-        /// <returns></returns>
-        protected override async Task DoWork(Uri imageUri, bool upload)
+        /// <param name="imageUri">The URI of the image to run against the scenario.</param>
+        /// <param name="upload">Upload the image to Cognitive Services if [true]; submit the Uri as a remote URL if [false].</param>
+        protected override async Task DoWorkAsync(Uri imageUri, bool upload)
         {
             _status.Text = "Describing...";
 
             //
-            // Either upload an image, or supply a url
+            // Either upload an image, or supply a URL.
             //
             ImageDescription analysisResult;
             if (upload)
             {
-                analysisResult = await UploadAndDescribeImage(imageUri.LocalPath);
+                analysisResult = await UploadAndDescribeImageAsync(imageUri.LocalPath);
             }
             else
             {
-                analysisResult = await DescribeUrl(imageUri.AbsoluteUri);
+                analysisResult = await DescribeUrlAsync(imageUri.AbsoluteUri);
             }
             _status.Text = "Describing Done";
 
             //
-            // Log analysis result in the log window
+            // Log analysis result in the log window.
             //
             Log("");
             Log("Describe Result:");

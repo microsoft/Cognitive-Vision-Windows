@@ -14,9 +14,9 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Margin="5,5,0,0" FontWeight="Bold" Text="Recognize Handwriting Text (English)"/>
+        <TextBlock Grid.Row="0" Margin="5,5,0,0" FontWeight="Bold" Text="Recognize Text (English)"/>
         <StackPanel Orientation="Vertical" Grid.Row="1" Margin="5,5,0,0" >
-            <TextBlock Margin="5, 5, 0, 0" Text="Choose a mode and image to recognize by clicking either [Load Image] or paste in an image url and then clicking [Recognize Text]"/>
+            <TextBlock Margin="5, 5, 0, 0" Text="Choose a mode and image to recognize by clicking either [Load Image] or paste in an image URL and then clicking [Recognize Text]"/>
             <ComboBox x:Name="_mode"  Margin="5, 5, 0, 0" Width="110" HorizontalAlignment="Left">
                 <ComboBoxItem IsSelected="True">Printed</ComboBoxItem>
                 <ComboBoxItem>Handwritten</ComboBoxItem>

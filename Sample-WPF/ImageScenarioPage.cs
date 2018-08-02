@@ -44,7 +44,7 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 namespace VisionAPI_WPF_Samples
 {
     /// <summary>
-    /// Common UI code for each Image based scenario
+    /// Common UI code for each Image based scenario.
     /// </summary>
     public abstract class ImageScenarioPage : Page
     {
@@ -73,21 +73,20 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Perform the work for this scenario
+        /// Perform the work for this scenario.
         /// </summary>
-        /// <param name="imageUri">The URI of the image to run against the scenario</param>
-        /// <param name="upload">Upload the image to Project Oxford if [true]; submit the Uri as a remote url if [false];</param>
-        /// <returns></returns>
-        protected abstract Task DoWork(Uri imageUri, bool upload);
+        /// <param name="imageUri">The URI of the image to run against the scenario.</param>
+        /// <param name="upload">Upload the image to Cognitive Services if [true]; submit the Uri as a remote URL if [false].</param>
+        protected abstract Task DoWorkAsync(Uri imageUri, bool upload);
 
-        private async Task ShowPreviewAndDoWork(Uri imageUri, bool upload)
+        private async Task ShowPreviewAndDoWorkAsync(Uri imageUri, bool upload)
         {
             try
             {
-                // Clear the log
+                // Clear the log.
                 mainWindow.ScenarioControl.ClearLog();
 
-                // Show the image on the GUI
+                // Show the image on the GUI.
                 BitmapImage bitmapSource = new BitmapImage();
                 bitmapSource.BeginInit();
                 bitmapSource.CacheOption = BitmapCacheOption.None;
@@ -95,8 +94,8 @@ namespace VisionAPI_WPF_Samples
                 bitmapSource.EndInit();
                 PreviewImage.Source = bitmapSource;
 
-                // do the actual work for the scenaro
-                await DoWork(imageUri, upload);
+                // do the actual work for the scenario.
+                await DoWorkAsync(imageUri, upload);
             }
             catch (Exception exception)
             {
@@ -121,28 +120,28 @@ namespace VisionAPI_WPF_Samples
             string imageFilePath = openDlg.FileName;
             Uri fileUri = new Uri(imageFilePath);
 
-            await ShowPreviewAndDoWork(fileUri, true);
+            await ShowPreviewAndDoWorkAsync(fileUri, true);
         }
 
         protected async void SubmitUriButton_Click(object sender, RoutedEventArgs e)
         {
             Uri imageUri = new Uri(URLTextBox.Text);
-            await ShowPreviewAndDoWork(imageUri, false);
+            await ShowPreviewAndDoWorkAsync(imageUri, false);
         }
 
         /// <summary>
-        /// Logs a message to the parent control
+        /// Logs a message to the parent control.
         /// </summary>
-        /// <param name="message">The message</param>
+        /// <param name="message">The message to log.</param>
         internal void Log(string message)
         {
            mainWindow.ScenarioControl.Log(message);
         }
 
         /// <summary>
-        /// Show Analysis Result
+        /// Show Analysis Result.
         /// </summary>
-        /// <param name="result">Analysis Result</param>
+        /// <param name="result">Analysis result to log.</param>
         protected void LogAnalysisResult(ImageAnalysis result)
         {
             if (result == null)
@@ -270,9 +269,9 @@ namespace VisionAPI_WPF_Samples
         }
         
         /// <summary>
-        /// Log the result of an analysis in domain result
+        /// Log the result of an analysis in domain result.
         /// </summary>
-        /// <param name="result"></param>
+        /// <param name="result">Domain analysis result to log.</param>
         protected void LogAnalysisInDomainResult(DomainModelResults result)
         {
             if (result.Metadata != null)
@@ -288,9 +287,9 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Show Description Results
+        /// Show Description Results.
         /// </summary>
-        /// <param name="result">Dessciption Result</param>
+        /// <param name="result">Description result to log.</param>
         protected void LogDescriptionResults(ImageDescription result)
         {
             ImageAnalysis analysisResult = new ImageAnalysis
@@ -306,9 +305,9 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Show Tagging Result
+        /// Show Tagging Result.
         /// </summary>
-        /// <param name="result">Tag Result</param>
+        /// <param name="result">Tag result to log.</param>
         protected void LogTagResult(TagResult result)
         {
             ImageAnalysis analysisResult = new ImageAnalysis
@@ -323,7 +322,7 @@ namespace VisionAPI_WPF_Samples
         /// Log text from the given OCR results object.
         /// </summary>
         /// <param name="results">The OCR results.</param>
-    protected void LogOcrResults(OcrResult results)
+        protected void LogOcrResults(OcrResult results)
         {
             StringBuilder stringBuilder = new StringBuilder();
 
@@ -352,10 +351,10 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Log text from the given HandwritingRecognitionOperationResult object.
+        /// Log text from the given TextOperationResult object.
         /// </summary>
-        /// <param name="results">The HandwritingRecognitionOperationResult.</param>
-        protected void LogHandwritingRecognitionResult(TextOperationResult results)
+        /// <param name="results">The TextOperationResult.</param>
+        protected void LogTextRecognitionResult(TextOperationResult results)
         {
             StringBuilder stringBuilder = new StringBuilder();
 

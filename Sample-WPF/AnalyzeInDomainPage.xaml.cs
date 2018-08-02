@@ -38,7 +38,7 @@ using System.Windows;
 
 // -----------------------------------------------------------------------
 // KEY SAMPLE CODE STARTS HERE
-// Use the following namesapce for VisionServiceClient
+// Use the following namespace for ComputerVisionClient.
 // -----------------------------------------------------------------------
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
@@ -49,7 +49,7 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 namespace VisionAPI_WPF_Samples
 {
     /// <summary>
-    /// Interaction logic for AnalyzeInDomainPage.xaml
+    /// Interaction logic for AnalyzeInDomainPage.xaml.
     /// </summary>
     public partial class AnalyzeInDomainPage : ImageScenarioPage
     {
@@ -58,31 +58,31 @@ namespace VisionAPI_WPF_Samples
             InitializeComponent();
             this.PreviewImage = _imagePreview;
             this.URLTextBox = _urlTextBox;
-            this._language.ItemsSource = new RecognizeLanguage[] { RecognizeLanguage.EN, RecognizeLanguage.JA, RecognizeLanguage.PT, RecognizeLanguage.ZH };
+            this._language.ItemsSource = RecognizeLanguage.SupportedForAnalysis;
         }
 
         /// <summary>
-        /// Get a list of available domain models
+        /// Get a list of available domain models.
         /// </summary>
-        /// <returns></returns>
-        private async Task<ListModelsResult> GetAvailableDomainModels()
+        /// <returns>Awaitable list of domains available for analysis.</returns>
+        private async Task<ListModelsResult> GetAvailableDomainModelsAsync()
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
             // -----------------------------------------------------------------------
 
             //
-            // Create Project Oxford Vision API Service client
+            // Create Cognitive Services Vision API Service client.
             //
-            using (var VisionServiceClient = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
+            using (var client = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
             {
-                Log("VisionServiceClient is created");
+                Log("ComputerVisionClient is created");
 
                 //
-                // Analyze the url against the given domain
+                // Analyze the URL against the given domain.
                 //
-                Log("Calling VisionServiceClient.ListModelsAsync()...");
-                ListModelsResult modelResult = await VisionServiceClient.ListModelsAsync();
+                Log("Calling ComputerVisionClient.ListModelsAsync()...");
+                ListModelsResult modelResult = await client.ListModelsAsync();
                 return modelResult;
             }
 
@@ -92,32 +92,32 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Uploads the image to Project Oxford and performs analysis against a given domain
+        /// Uploads the image to Cognitive Services and performs analysis against a given domain.
         /// </summary>
         /// <param name="imageFilePath">The image file path.</param>
-        /// <param name="domainModel">The domain model to analyze against</param>
-        /// <returns></returns>
-        private async Task<DomainModelResults> UploadAndAnalyzeInDomainImage(string imageFilePath, ModelDescription domainModel)
+        /// <param name="domainModel">The domain model for analyzing an image.</param>
+        /// <returns>Awaitable domain-specific analysis result.</returns>
+        private async Task<DomainModelResults> UploadAndAnalyzeInDomainImageAsync(string imageFilePath, ModelDescription domainModel)
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
             // -----------------------------------------------------------------------
 
             //
-            // Create Project Oxford Vision API Service client
+            // Create Cognitive Services Vision API Service client.
             //
-            using (var VisionServiceClient = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
+            using (var client = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
             {
-                Log("VisionServiceClient is created");
+                Log("ComputerVisionClient is created");
 
                 using (Stream imageFileStream = File.OpenRead(imageFilePath))
                 {
                     //
-                    // Analyze the image for the given domain
+                    // Analyze the image for the given domain.
                     //
-                    Log("Calling VisionServiceClient.AnalyzeImageInDomainAsync()...");
-                    string language = (_language.SelectedItem as RecognizeLanguage).ShortCode;
-                    DomainModelResults analysisResult = await VisionServiceClient.AnalyzeImageByDomainInStreamAsync(domainModel.Name, imageFileStream, language);
+                    Log("Calling ComputerVisionClient.AnalyzeImageByDomainInStreamAsync()...");
+                    string language = ((RecognizeLanguage)_language.SelectedItem).ShortCode;
+                    DomainModelResults analysisResult = await client.AnalyzeImageByDomainInStreamAsync(domainModel.Name, imageFileStream, language);
                     return analysisResult;
                 }
             }
@@ -128,30 +128,30 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Sends a url to Project Oxford and performs analysis against a given domain
+        /// Sends a URL to Cognitive Services and performs analysis against a given domain.
         /// </summary>
-        /// <param name="imageUrl">The url of the image to analyze</param>
-        /// <param name="domainModel">The domain model to analyze against</param>
-        /// <returns></returns>
-        private async Task<DomainModelResults> AnalyzeInDomainUrl(string imageUrl, ModelDescription domainModel)
+        /// <param name="imageUrl">The URL of the image to analyze.</param>
+        /// <param name="domainModel">The domain model to analyze against.</param>
+        /// <returns>Awaitable domain-specific analysis result.</returns>
+        private async Task<DomainModelResults> AnalyzeInDomainUrlAsync(string imageUrl, ModelDescription domainModel)
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
             // -----------------------------------------------------------------------
 
             //
-            // Create Project Oxford Vision API Service client
+            // Create Cognitive Services Vision API Service client.
             //
-            using (var VisionServiceClient = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
+            using (var client = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
             {
-                Log("VisionServiceClient is created");
+                Log("ComputerVisionClient is created");
 
                 //
-                // Analyze the url against the given domain
+                // Analyze the URL against the given domain.
                 //
-                Log("Calling VisionServiceClient.AnalyzeImageInDomainAsync()...");
+                Log("Calling ComputerVisionClient.AnalyzeImageByDomainAsync()...");
                 string language = (_language.SelectedItem as RecognizeLanguage).ShortCode;
-                DomainModelResults analysisResult = await VisionServiceClient.AnalyzeImageByDomainAsync(domainModel.Name, imageUrl, language);
+                DomainModelResults analysisResult = await client.AnalyzeImageByDomainAsync(domainModel.Name, imageUrl, language);
                 return analysisResult;
             }
             // -----------------------------------------------------------------------
@@ -159,28 +159,28 @@ namespace VisionAPI_WPF_Samples
             // -----------------------------------------------------------------------
         }
 
-        protected override async Task DoWork(Uri imageUri, bool upload)
+        protected override async Task DoWorkAsync(Uri imageUri, bool upload)
         {
             _status.Text = "Analyzing...";
 
             ModelDescription domainModel = _domainModelComboBox.SelectedItem as ModelDescription;
 
             //
-            // Either upload an image, or supply a url
+            // Either upload an image, or supply a URL.
             //
             DomainModelResults analysisInDomainResult;
             if (upload)
             {
-                analysisInDomainResult = await UploadAndAnalyzeInDomainImage(imageUri.LocalPath, domainModel);
+                analysisInDomainResult = await UploadAndAnalyzeInDomainImageAsync(imageUri.LocalPath, domainModel);
             }
             else
             {
-                analysisInDomainResult = await AnalyzeInDomainUrl(imageUri.AbsoluteUri, domainModel);
+                analysisInDomainResult = await AnalyzeInDomainUrlAsync(imageUri.AbsoluteUri, domainModel);
             }
             _status.Text = "Analyzing Done";
 
             //
-            // Log analysis result in the log window
+            // Log analysis result in the log window.
             //
             Log("");
             Log("Analysis In Domain Result:");
@@ -192,9 +192,9 @@ namespace VisionAPI_WPF_Samples
             _status.Text = "Loading models...";
 
             //
-            // Get the avaialable models
+            // Get the available models.
             //
-            var modelResult = await GetAvailableDomainModels();
+            var modelResult = await GetAvailableDomainModelsAsync();
             _domainModelComboBox.ItemsSource = modelResult.ModelsProperty;
 
             _status.Text = "Loaded models";

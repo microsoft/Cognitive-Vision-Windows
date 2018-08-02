@@ -37,6 +37,11 @@ namespace VisionAPI_WPF_Samples
 {
     public sealed class RecognizeLanguage
     {
+        public static readonly RecognizeLanguage[] SupportedForAnalysis = { EN, ES, JA, PT, ZH };
+        public static readonly RecognizeLanguage[] SupportedForDescription = { EN, ES, JA, PT, ZH };
+        public static readonly RecognizeLanguage[] SupportedForTagging = { EN, ES, JA, PT, ZH };
+        public static readonly RecognizeLanguage[] SupportedForOCR = { UNK, AR, ZH_CN, ZH_TW, CS, DA, NL, EN, FI, FR, DE, EL, HU, IT, JA, KO, NB, PL, PT, RO, RU, SR_CYRL, SR_LATN, SK, ES, SV, TR };
+
         public static readonly RecognizeLanguage UNK = new RecognizeLanguage("unk", OcrLanguages.Unk, "AutoDetect");
         public static readonly RecognizeLanguage ZH = new RecognizeLanguage("zh", OcrLanguages.ZhHans, "Chinese");
         public static readonly RecognizeLanguage AR = new RecognizeLanguage("ar", OcrLanguages.Ar, "Arabic");

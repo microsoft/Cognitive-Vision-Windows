@@ -17,7 +17,7 @@
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Margin="5, 5, 0, 0" FontWeight="Bold">Generate Tags for an Image</TextBlock>
         <StackPanel Orientation="Vertical" Grid.Row="1" >
-            <TextBlock Margin="5, 5, 0, 0">Please click either [Load Image] or paste in an image url and click [Generate Tags]</TextBlock>
+            <TextBlock Margin="5, 5, 0, 0">Please click either [Load Image] or paste in an image URL and click [Generate Tags]</TextBlock>
             <ComboBox x:Name="_language" Margin="5, 5, 0, 5" Width="80" HorizontalAlignment="Left" HorizontalContentAlignment="Left" SelectedIndex="0">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>

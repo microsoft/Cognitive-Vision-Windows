@@ -22,7 +22,7 @@
                 <Button x:Name="_loadModelsButton" Click="LoadModelsButton_Click" Content="Load available models" Margin="5,5,0,0" Width="200" HorizontalAlignment="Left"></Button>
             </StackPanel>
             <StackPanel Orientation="Vertical" x:Name="_stepTwoPanel" Visibility="Collapsed">
-                <TextBlock Margin="5, 5, 0, 0">Choose a domain model, then click either [Load Image] or paste in an image url and click [Analyze]</TextBlock>
+                <TextBlock Margin="5, 5, 0, 0">Choose a domain model, then click either [Load Image] or paste in an image URL and click [Analyze]</TextBlock>
                 <StackPanel Orientation="Horizontal" Margin="5, 10, 0, 5">
                     <TextBlock>Domain Model:</TextBlock>
                     <ComboBox x:Name="_domainModelComboBox" Width="140" SelectedIndex="0" Margin="5, 0">

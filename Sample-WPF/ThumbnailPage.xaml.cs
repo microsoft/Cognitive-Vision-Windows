@@ -38,7 +38,7 @@ using System.Windows.Media.Imaging;
 
 // -----------------------------------------------------------------------
 // KEY SAMPLE CODE STARTS HERE
-// Use the following namesapce for VisionServiceClient
+// Use the following namespace for ComputerVisionClient.
 // -----------------------------------------------------------------------
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 // -----------------------------------------------------------------------
@@ -48,7 +48,7 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 namespace VisionAPI_WPF_Samples
 {
     /// <summary>
-    /// Interaction logic for ThumbnailPage.xaml
+    /// Interaction logic for ThumbnailPage.xaml.
     /// </summary>
     public partial class ThumbnailPage : ImageScenarioPage
     {
@@ -60,33 +60,33 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Uploads the image to Project Oxford and generates a thumbnail
+        /// Uploads the image to Cognitive Services and generates a thumbnail.
         /// </summary>
         /// <param name="imageFilePath">The image file path.</param>
         /// <param name="width">Width of the thumbnail. It must be between 1 and 1024. Recommended minimum of 50.</param>
         /// <param name="height">Height of the thumbnail. It must be between 1 and 1024. Recommended minimum of 50.</param>
         /// <param name="smartCropping">Boolean flag for enabling smart cropping.</param>
-        /// <returns></returns>
-        private async Task<Stream> UploadAndThumbnailImage(string imageFilePath, int width, int height, bool smartCropping)
+        /// <returns>Awaitable stream containing the image thumbnail.</returns>
+        private async Task<Stream> UploadAndThumbnailImageAsync(string imageFilePath, int width, int height, bool smartCropping)
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
             // -----------------------------------------------------------------------
 
             //
-            // Create Project Oxford Vision API Service client
+            // Create Cognitive Services Vision API Service client.
             //
-            using (var VisionServiceClient = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
+            using (var client = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
             {
-                Log("VisionServiceClient is created");
+                Log("ComputerVisionClient is created");
 
                 using (Stream imageFileStream = File.OpenRead(imageFilePath))
                 {
                     //
-                    // Upload an image and generate a thumbnail
+                    // Upload an image and generate a thumbnail.
                     //
-                    Log("Calling VisionServiceClient.GetThumbnailAsync()...");
-                    return await VisionServiceClient.GenerateThumbnailInStreamAsync(width, height, imageFileStream, smartCropping);
+                    Log("Calling ComputerVisionClient.GenerateThumbnailInStreamAsync()...");
+                    return await client.GenerateThumbnailInStreamAsync(width, height, imageFileStream, smartCropping);
                 }
             }
 
@@ -96,31 +96,31 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Sends a url to Project Oxford and generates a thumbnail
+        /// Sends a URL to Cognitive Services and generates a thumbnail.
         /// </summary>
-        /// <param name="imageUrl">The url of the image to generate a thumbnail for</param>
+        /// <param name="imageUrl">The URL of the image for which to generate a thumbnail.</param>
         /// <param name="width">Width of the thumbnail. It must be between 1 and 1024. Recommended minimum of 50.</param>
         /// <param name="height">Height of the thumbnail. It must be between 1 and 1024. Recommended minimum of 50.</param>
         /// <param name="smartCropping">Boolean flag for enabling smart cropping.</param>
-        /// <returns></returns>
-        private async Task<Stream> ThumbnailUrl(string imageUrl, int width, int height, bool smartCropping)
+        /// <returns>Awaitable stream containing the image thumbnail.</returns>
+        private async Task<Stream> ThumbnailUrlAsync(string imageUrl, int width, int height, bool smartCropping)
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
             // -----------------------------------------------------------------------
 
             //
-            // Create Project Oxford Vision API Service client
+            // Create Cognitive Services Vision API Service client.
             //
-            using (var VisionServiceClient = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
+            using (var client = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
             {
-                Log("VisionServiceClient is created");
+                Log("ComputerVisionClient is created");
 
                 //
-                // Generate a thumbnail for the given url
+                // Generate a thumbnail for the given URL.
                 //
-                Log("Calling VisionServiceClient.GetThumbnailAsync()...");
-               return await VisionServiceClient.GenerateThumbnailAsync(width, height, imageUrl, smartCropping);
+                Log("Calling ComputerVisionClient.GenerateThumbnailAsync()...");
+               return await client.GenerateThumbnailAsync(width, height, imageUrl, smartCropping);
             }
 
             // -----------------------------------------------------------------------
@@ -129,38 +129,37 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Perform the work for this scenario
+        /// Perform the work for this scenario.
         /// </summary>
-        /// <param name="imageUri">The URI of the image to run against the scenario</param>
-        /// <param name="upload">Upload the image to Project Oxford if [true]; submit the Uri as a remote url if [false];</param>
-        /// <returns></returns>
-        protected override async Task DoWork(Uri imageUri, bool upload)
+        /// <param name="imageUri">The URI of the image to run against the scenario.</param>
+        /// <param name="upload">Upload the image to Cognitive Services if [true]; submit the Uri as a remote URL if [false].</param>
+        protected override async Task DoWorkAsync(Uri imageUri, bool upload)
         {
             _status.Text = "Generating Thumbnail...";
 
             //
-            // Get the parameters
+            // Get the parameters.
             //
             int width = int.Parse(_widthTextBox.Text);
             int height = int.Parse(_heightTextBox.Text);
             bool useSmartCropping = _smartCroppingCheckbox.IsChecked.Value;
 
             //
-            // Either upload an image, or supply a url
+            // Either upload an image, or supply a URL.
             //
             Stream thumbnailStream;
             if (upload)
             {
-                thumbnailStream = await UploadAndThumbnailImage(imageUri.LocalPath, width, height, useSmartCropping);
+                thumbnailStream = await UploadAndThumbnailImageAsync(imageUri.LocalPath, width, height, useSmartCropping);
             }
             else
             {
-                thumbnailStream = await ThumbnailUrl(imageUri.AbsoluteUri, width, height, useSmartCropping);
+                thumbnailStream = await ThumbnailUrlAsync(imageUri.AbsoluteUri, width, height, useSmartCropping);
             }
             _status.Text = "Thumbnail Generated";
 
             //
-            // Show the generated thumbnail in the GUI
+            // Show the generated thumbnail in the GUI.
             //
             BitmapImage thumbSource = new BitmapImage();
             thumbSource.BeginInit();

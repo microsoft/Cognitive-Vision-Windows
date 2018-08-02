@@ -32,13 +32,12 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
 // -----------------------------------------------------------------------
 // KEY SAMPLE CODE STARTS HERE
-// Use the following namesapce for VisionServiceClient
+// Use the following namespace for ComputerVisionClient.
 // -----------------------------------------------------------------------
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
@@ -49,46 +48,46 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 namespace VisionAPI_WPF_Samples
 {
     /// <summary>
-    /// Interaction logic for OCRPage.xaml
+    /// Interaction logic for OCRPage.xaml.
     /// </summary>
     public partial class OCRPage : ImageScenarioPage
     {
-        const bool NoDetectOrientation = false;
+        const bool DetectOrientation = true;
 
         public OCRPage()
         {
             InitializeComponent();
             this.PreviewImage = _imagePreview;
             this.URLTextBox = _urlTextBox;
-            this.languageComboBox.ItemsSource = GetSupportedLanguages();
+            this.languageComboBox.ItemsSource = RecognizeLanguage.SupportedForOCR;
         }
 
         /// <summary>
-        /// Uploads the image to Project Oxford and performs OCR
+        /// Uploads the image to Cognitive Services and performs OCR.
         /// </summary>
         /// <param name="imageFilePath">The image file path.</param>
-        /// <param name="language">The language code to recognize for</param>
-        /// <returns></returns>
-        private async Task<OcrResult> UploadAndRecognizeImage(string imageFilePath, OcrLanguages language)
+        /// <param name="language">The language code to recognize.</param>
+        /// <returns>Awaitable OCR result.</returns>
+        private async Task<OcrResult> UploadAndRecognizeImageAsync(string imageFilePath, OcrLanguages language)
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
             // -----------------------------------------------------------------------
 
             //
-            // Create Project Oxford Vision API Service client
+            // Create Cognitive Services Vision API Service client.
             //
-            using (var VisionServiceClient = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
+            using (var client = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
             {
-                Log("VisionServiceClient is created");
+                Log("ComputerVisionClient is created");
 
                 using (Stream imageFileStream = File.OpenRead(imageFilePath))
                 {
                     //
-                    // Upload an image and perform OCR
+                    // Upload an image and perform OCR.
                     //
-                    Log("Calling VisionServiceClient.RecognizeTextAsync()...");
-                    OcrResult ocrResult = await VisionServiceClient.RecognizePrintedTextInStreamAsync(NoDetectOrientation, imageFileStream, language);
+                    Log("Calling ComputerVisionClient.RecognizePrintedTextInStreamAsync()...");
+                    OcrResult ocrResult = await client.RecognizePrintedTextInStreamAsync(!DetectOrientation, imageFileStream, language);
                     return ocrResult;
                 }
             }
@@ -99,29 +98,29 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Sends a url to Project Oxford and performs OCR
+        /// Sends a URL to Cognitive Services and performs OCR.
         /// </summary>
-        /// <param name="imageUrl">The url to perform recognition on</param>
-        /// <param name="language">The language code to recognize for</param>
-        /// <returns></returns>
-        private async Task<OcrResult> RecognizeUrl(string imageUrl, OcrLanguages language)
+        /// <param name="imageUrl">The image URL for which to perform recognition.</param>
+        /// <param name="language">The language code to recognize.</param>
+        /// <returns>Awaitable OCR result.</returns>
+        private async Task<OcrResult> RecognizeUrlAsync(string imageUrl, OcrLanguages language)
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
             // -----------------------------------------------------------------------
 
             //
-            // Create Project Oxford Vision API Service client
+            // Create Cognitive Services Vision API Service client.
             //
-            using (var VisionServiceClient = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
+            using (var client = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
             {
-                Log("VisionServiceClient is created");
+                Log("ComputerVisionClient is created");
 
                 //
-                // Perform OCR on the given url
+                // Perform OCR on the given URL.
                 //
-                Log("Calling VisionServiceClient.RecognizeTextAsync()...");
-                OcrResult ocrResult = await VisionServiceClient.RecognizePrintedTextAsync(NoDetectOrientation, imageUrl, language);
+                Log("Calling ComputerVisionClient.RecognizePrintedTextAsync()...");
+                OcrResult ocrResult = await client.RecognizePrintedTextAsync(!DetectOrientation, imageUrl, language);
                 return ocrResult;
             }
 
@@ -131,71 +130,37 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Perform the work for this scenario
+        /// Perform the work for this scenario.
         /// </summary>
-        /// <param name="imageUri">The URI of the image to run against the scenario</param>
-        /// <param name="upload">Upload the image to Project Oxford if [true]; submit the Uri as a remote url if [false];</param>
-        /// <returns></returns>
-        protected override async Task DoWork(Uri imageUri, bool upload)
+        /// <param name="imageUri">The URI of the image to run against the scenario.</param>
+        /// <param name="upload">Upload the image to Cognitive Services if [true]; submit the Uri as a remote URL if [false].</param>
+        /// <returns>Awaitable OCR result.</returns>
+        protected override async Task DoWorkAsync(Uri imageUri, bool upload)
         {
             _status.Text = "Performing OCR...";
 
             OcrLanguages languageCode = (languageComboBox.SelectedItem as RecognizeLanguage).OcrEnum;
 
             //
-            // Either upload an image, or supply a url
+            // Either upload an image, or supply a URL.
             //
             OcrResult ocrResult;
             if (upload)
             {
-                ocrResult = await UploadAndRecognizeImage(imageUri.LocalPath, languageCode);
+                ocrResult = await UploadAndRecognizeImageAsync(imageUri.LocalPath, languageCode);
             }
             else
             {
-                ocrResult = await RecognizeUrl(imageUri.AbsoluteUri, languageCode);
+                ocrResult = await RecognizeUrlAsync(imageUri.AbsoluteUri, languageCode);
             }
             _status.Text = "OCR Done";
 
             //
-            // Log analysis result in the log window
+            // Log analysis result in the log window.
             //
             Log("");
             Log("OCR Result:");
             LogOcrResults(ocrResult);
-        }
-
-        private List<RecognizeLanguage> GetSupportedLanguages()
-        {
-            return new List<RecognizeLanguage>()
-            {
-                RecognizeLanguage.UNK,
-                RecognizeLanguage.AR,
-                RecognizeLanguage.ZH_CN,
-                RecognizeLanguage.ZH_TW,
-                RecognizeLanguage.CS,
-                RecognizeLanguage.DA,
-                RecognizeLanguage.NL,
-                RecognizeLanguage.EN,
-                RecognizeLanguage.FI,
-                RecognizeLanguage.FR,
-                RecognizeLanguage.DE,
-                RecognizeLanguage.EL,
-                RecognizeLanguage.HU,
-                RecognizeLanguage.IT,
-                RecognizeLanguage.JA,
-                RecognizeLanguage.KO,
-                RecognizeLanguage.NB,
-                RecognizeLanguage.PL,
-                RecognizeLanguage.PT,
-                RecognizeLanguage.RO,
-                RecognizeLanguage.RU,
-                RecognizeLanguage.SR_CYRL,
-                RecognizeLanguage.SR_LATN,
-                RecognizeLanguage.SK,
-                RecognizeLanguage.ES,
-                RecognizeLanguage.SV,
-                RecognizeLanguage.TR,
-            };
         }
     }
 }

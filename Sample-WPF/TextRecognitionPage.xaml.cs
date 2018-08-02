@@ -37,7 +37,7 @@ using System.Threading.Tasks;
 
 // -----------------------------------------------------------------------
 // KEY SAMPLE CODE STARTS HERE
-// Use the following namesapce for VisionServiceClient
+// Use the following namespace for ComputerVisionClient.
 // -----------------------------------------------------------------------
 using Microsoft.ProjectOxford.Common;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
@@ -49,7 +49,7 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 namespace VisionAPI_WPF_Samples
 {
     /// <summary>
-    /// Interaction logic for HandwritingOCRPage.xaml
+    /// Interaction logic for TextRecognitionPage.xaml.
     /// </summary>
     public partial class TextRecognitionPage : ImageScenarioPage
     {
@@ -67,29 +67,29 @@ namespace VisionAPI_WPF_Samples
         private TextRecognitionMode RecognitionMode => (TextRecognitionMode)Enum.Parse(typeof(TextRecognitionMode), _mode.Text);
 
         /// <summary>
-        /// Uploads the image to Project Oxford and performs Handwriting Recognition
+        /// Uploads the image to Cognitive Services and performs Text Recognition.
         /// </summary>
         /// <param name="imageFilePath">The image file path.</param>
-        /// <returns></returns>
-        private async Task<TextOperationResult> UploadAndRecognizeImage(string imageFilePath)
+        /// <returns>Awaitable OCR result.</returns>
+        private async Task<TextOperationResult> UploadAndRecognizeImageAsync(string imageFilePath)
         {
             using (Stream imageFileStream = File.OpenRead(imageFilePath))
             {
                 return await RecognizeAsync(
-                    async (ComputerVisionClient VisionServiceClient) => await VisionServiceClient.RecognizeTextInStreamAsync(imageFileStream, RecognitionMode),
+                    async (ComputerVisionClient client) => await client.RecognizeTextInStreamAsync(imageFileStream, RecognitionMode),
                     headers => headers.OperationLocation);
             }
         }
 
         /// <summary>
-        /// Sends a url to Project Oxford and performs Handwriting Recognition
+        /// Sends a URL to Cognitive Services and performs Text Recognition.
         /// </summary>
-        /// <param name="imageUrl">The url to perform recognition on</param>
-        /// <returns></returns>
-        private async Task<TextOperationResult> RecognizeUrl(string imageUrl)
+        /// <param name="imageUrl">The image URL on which to perform recognition</param>
+        /// <returns>Awaitable OCR result.</returns>
+        private async Task<TextOperationResult> RecognizeUrlAsync(string imageUrl)
         {
             return await RecognizeAsync(
-                async (ComputerVisionClient VisionServiceClient) => await VisionServiceClient.RecognizeTextAsync(imageUrl, RecognitionMode),
+                async (ComputerVisionClient client) => await client.RecognizeTextAsync(imageUrl, RecognitionMode),
                 headers => headers.OperationLocation);
         }
 
@@ -101,25 +101,25 @@ namespace VisionAPI_WPF_Samples
             var result = default(TextOperationResult);
 
             //
-            // Create Project Oxford Vision API Service client
+            // Create Cognitive Services Vision API Service client.
             //
-            using (var VisionServiceClient = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
+            using (var client = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
             {
-                Log("VisionServiceClient is created");
+                Log("ComputerVisionClient is created");
 
                 try
                 {
-                    Log("Calling VisionServiceClient.CreateHandwritingRecognitionOperationAsync()...");
+                    Log("Calling ComputerVisionClient.RecognizeTextAsync()...");
 
-                    T recognizeHeaders = await GetHeadersAsyncFunc(VisionServiceClient);
+                    T recognizeHeaders = await GetHeadersAsyncFunc(client);
                     string operationUrl = GetOperationUrlFunc(recognizeHeaders);
                     string operationId = operationUrl.Substring(operationUrl.LastIndexOf('/') + 1);
 
+                    Log("Calling ComputerVisionClient.GetTextOperationResultAsync()...");
+                    result = await client.GetTextOperationResultAsync(operationId);
+
                     for (int attempt = 1; attempt <= MaxRetryTimes; attempt++)
                     {
-                        Log("Calling VisionServiceClient.GetHandwritingRecognitionOperationResultAsync()...");
-                        result = await VisionServiceClient.GetTextOperationResultAsync(operationId);
-
                         if (result.Status == TextOperationStatusCodes.Failed || result.Status == TextOperationStatusCodes.Succeeded)
                         {
                             break;
@@ -128,8 +128,8 @@ namespace VisionAPI_WPF_Samples
                         Log(string.Format("Server status: {0}, wait {1} seconds...", result.Status, QueryWaitTimeInSecond));
                         await Task.Delay(QueryWaitTimeInSecond);
 
-                        Log("Calling VisionServiceClient.GetHandwritingRecognitionOperationResultAsync()...");
-                        result = await VisionServiceClient.GetTextOperationResultAsync(operationId);
+                        Log("Calling ComputerVisionClient.GetTextOperationResultAsync()...");
+                        result = await client.GetTextOperationResultAsync(operationId);
                     }
 
                 }
@@ -147,34 +147,33 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Perform the work for this scenario
+        /// Perform the work for this scenario.
         /// </summary>
-        /// <param name="imageUri">The URI of the image to run against the scenario</param>
-        /// <param name="upload">Upload the image to Project Oxford if [true]; submit the Uri as a remote url if [false];</param>
-        /// <returns></returns>
-        protected override async Task DoWork(Uri imageUri, bool upload)
+        /// <param name="imageUri">The URI of the image to run against the scenario.</param>
+        /// <param name="upload">Upload the image to Cognitive Services if [true]; submit the Uri as a remote URL if [false].</param>
+        protected override async Task DoWorkAsync(Uri imageUri, bool upload)
         {
-            _status.Text = "Performing Handwriting recognition...";
+            _status.Text = "Performing text recognition...";
 
             //
-            // Either upload an image, or supply a url
+            // Either upload an image, or supply a URL.
             //
             TextOperationResult result;
             if (upload)
             {
-                result = await UploadAndRecognizeImage(imageUri.LocalPath);
+                result = await UploadAndRecognizeImageAsync(imageUri.LocalPath);
             }
             else
             {
-                result = await RecognizeUrl(imageUri.AbsoluteUri);
+                result = await RecognizeUrlAsync(imageUri.AbsoluteUri);
             }
-            _status.Text = "Handwriting recognition finished!";
+            _status.Text = "Text recognition finished!";
 
             //
-            // Log analysis result in the log window
+            // Log analysis result in the log window.
             //
-            LogHandwritingRecognitionResult(result);
-            Log("Handwriting recognition finished!");
+            LogTextRecognitionResult(result);
+            Log("Text recognition finished!");
         }
     }
 }

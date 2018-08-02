@@ -37,7 +37,7 @@ using SampleUserControlLibrary;
 namespace VisionAPI_WPF_Samples
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for MainWindow.xaml.
     /// </summary>
     public partial class MainWindow : Window
     {
@@ -54,7 +54,7 @@ namespace VisionAPI_WPF_Samples
             InitializeComponent();
 
             //
-            // Initialize SampleScenarios User Control with titles and scenario pages
+            // Initialize SampleScenarios User Control with titles and scenario pages.
             //
             _scenariosControl.SampleTitle = "Vision API";
             _scenariosControl.SampleScenarioList = new Scenario[]

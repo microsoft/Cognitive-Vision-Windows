@@ -37,7 +37,7 @@ using System.Threading.Tasks;
 
 // -----------------------------------------------------------------------
 // KEY SAMPLE CODE STARTS HERE
-// Use the following namesapce for VisionServiceClient
+// Use the following namespace for ComputerVisionClient.
 // -----------------------------------------------------------------------
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
@@ -48,7 +48,7 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 namespace VisionAPI_WPF_Samples
 {
     /// <summary>
-    /// Interaction logic for TagsPage.xaml
+    /// Interaction logic for TagsPage.xaml.
     /// </summary>
     public partial class TagsPage : ImageScenarioPage
     {
@@ -57,34 +57,34 @@ namespace VisionAPI_WPF_Samples
             InitializeComponent();
             this.PreviewImage = _imagePreview;
             this.URLTextBox = _urlTextBox;
-            this._language.ItemsSource = new RecognizeLanguage[] { RecognizeLanguage.EN, RecognizeLanguage.JA, RecognizeLanguage.PT, RecognizeLanguage.ZH };
+            this._language.ItemsSource = RecognizeLanguage.SupportedForTagging;
         }
 
         /// <summary>
-        /// Uploads the image to Project Oxford and generates tags
+        /// Uploads the image to Cognitive Services and generates tags.
         /// </summary>
         /// <param name="imageFilePath">The image file path.</param>
-        /// <returns></returns>
-        private async Task<TagResult> UploadAndGetTagsForImage(string imageFilePath)
+        /// <returns>Awaitable tagging result.</returns>
+        private async Task<TagResult> UploadAndGetTagsForImageAsync(string imageFilePath)
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
             // -----------------------------------------------------------------------
 
             //
-            // Create Project Oxford Vision API Service client
+            // Create Cognitive Services Vision API Service client.
             //
-            using (ComputerVisionClient VisionServiceClient = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
+            using (var client = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
             using (Stream imageFileStream = File.OpenRead(imageFilePath))
             {
-                Log("VisionServiceClient is created");
+                Log("ComputerVisionClient is created");
 
                 //
-                // Upload and image and generate tags
+                // Upload and image and generate tags.
                 //
-                Log("Calling VisionServiceClient.GetTagsAsync()...");
+                Log("Calling ComputerVisionClient.TagImageInStreamAsync()...");
                 string language = (_language.SelectedItem as RecognizeLanguage).ShortCode;
-                TagResult analysisResult = await VisionServiceClient.TagImageInStreamAsync(imageFileStream, language);
+                TagResult analysisResult = await client.TagImageInStreamAsync(imageFileStream, language);
                 return analysisResult;
             }
 
@@ -94,29 +94,29 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Sends a url to Project Oxford and generates tags for it
+        /// Sends a URL to Cognitive Services and generates tags for it.
         /// </summary>
-        /// <param name="imageUrl">The url of the image to generate tags for</param>
-        /// <returns></returns>
-        private async Task<TagResult> GenerateTagsForUrl(string imageUrl)
+        /// <param name="imageUrl">The URL of the image for which to generate tags.</param>
+        /// <returns>Awaitable tagging result.</returns>
+        private async Task<TagResult> GenerateTagsForUrlAsync(string imageUrl)
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
             // -----------------------------------------------------------------------
 
             //
-            // Create Project Oxford Vision API Service client
+            // Create Cognitive Services Vision API Service client.
             //
-            using (var VisionServiceClient = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
+            using (var client = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
             {
-                Log("VisionServiceClient is created");
+                Log("ComputerVisionClient is created");
 
                 //
-                // Generate tags for the given url
+                // Generate tags for the given URL.
                 //
-                Log("Calling VisionServiceClient.GetTagsAsync()...");
+                Log("Calling ComputerVisionClient.TagImageAsync()...");
                 string language = (_language.SelectedItem as RecognizeLanguage).ShortCode;
-                TagResult analysisResult = await VisionServiceClient.TagImageAsync(imageUrl, language);
+                TagResult analysisResult = await client.TagImageAsync(imageUrl, language);
                 return analysisResult;
             }
 
@@ -126,31 +126,30 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Perform the work for this scenario
+        /// Perform the work for this scenario.
         /// </summary>
-        /// <param name="imageUri">The URI of the image to run against the scenario</param>
-        /// <param name="upload">Upload the image to Project Oxford if [true]; submit the Uri as a remote url if [false];</param>
-        /// <returns></returns>
-        protected override async Task DoWork(Uri imageUri, bool upload)
+        /// <param name="imageUri">The URI of the image to run against the scenario.</param>
+        /// <param name="upload">Upload the image to Cognitive Services if [true]; submit the Uri as a remote URL if [false].</param>
+        protected override async Task DoWorkAsync(Uri imageUri, bool upload)
         {
             _status.Text = "Generating tags...";
 
             //
-            // Either upload an image, or supply a url
+            // Either upload an image, or supply a URL.
             //
             TagResult tagResult;
             if (upload)
             {
-                tagResult = await UploadAndGetTagsForImage(imageUri.LocalPath);
+                tagResult = await UploadAndGetTagsForImageAsync(imageUri.LocalPath);
             }
             else
             {
-                tagResult = await GenerateTagsForUrl(imageUri.AbsoluteUri);
+                tagResult = await GenerateTagsForUrlAsync(imageUri.AbsoluteUri);
             }
             _status.Text = "Done";
 
             //
-            // Log analysis result in the log window
+            // Log analysis result in the log window.
             //
             Log("");
             Log("Get Tags Result:");

@@ -17,7 +17,7 @@
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Margin="5, 5, 0, 0" FontWeight="Bold">Describe an Image</TextBlock>
         <StackPanel Orientation="Vertical" Grid.Row="1" >
-            <TextBlock Margin="5, 5, 0, 0">Please click either [Load Image] or paste in an image url and click [Describe]</TextBlock>
+            <TextBlock Margin="5, 5, 0, 0">Please click either [Load Image] or paste in an image URL and click [Describe]</TextBlock>
             <ComboBox x:Name="_language" Margin="5, 5, 0, 5" Width="80" HorizontalAlignment="Left" HorizontalContentAlignment="Left" SelectedIndex="0">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
