@@ -39,6 +39,7 @@ using System.Threading.Tasks;
 // KEY SAMPLE CODE STARTS HERE
 // Use the following namesapce for VisionServiceClient
 // -----------------------------------------------------------------------
+using Microsoft.ProjectOxford.Common;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 // -----------------------------------------------------------------------
@@ -48,63 +49,56 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 namespace VisionAPI_WPF_Samples
 {
     /// <summary>
-    /// Interaction logic for DescribePage.xaml
+    /// Interaction logic for HandwritingOCRPage.xaml
     /// </summary>
-    public partial class DescribePage : ImageScenarioPage
+    public partial class TextRecognitionPage : ImageScenarioPage
     {
-        public DescribePage()
+        public TextRecognitionPage()
         {
             InitializeComponent();
             this.PreviewImage = _imagePreview;
             this.URLTextBox = _urlTextBox;
-            this._language.ItemsSource = new RecognizeLanguage[] { RecognizeLanguage.EN, RecognizeLanguage.JA, RecognizeLanguage.PT, RecognizeLanguage.ZH };
         }
 
         /// <summary>
-        /// Uploads the image to Project Oxford and performs description
+        /// Gets the TextRecognitionMode value from the UI.
+        /// </summary>
+        /// <returns>TextRecognitionMode enumerated type value.</returns>
+        private TextRecognitionMode RecognitionMode => (TextRecognitionMode)Enum.Parse(typeof(TextRecognitionMode), _mode.Text);
+
+        /// <summary>
+        /// Uploads the image to Project Oxford and performs Handwriting Recognition
         /// </summary>
         /// <param name="imageFilePath">The image file path.</param>
         /// <returns></returns>
-        private async Task<ImageDescription> UploadAndDescribeImage(string imageFilePath)
+        private async Task<TextOperationResult> UploadAndRecognizeImage(string imageFilePath)
         {
-            // -----------------------------------------------------------------------
-            // KEY SAMPLE CODE STARTS HERE
-            // -----------------------------------------------------------------------
-
-            //
-            // Create Project Oxford Vision API Service client
-            //
-            using (var VisionServiceClient = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
+            using (Stream imageFileStream = File.OpenRead(imageFilePath))
             {
-                Log("VisionServiceClient is created");
-
-                using (Stream imageFileStream = File.OpenRead(imageFilePath))
-                {
-                    //
-                    // Upload and image and request three descriptions
-                    //
-                    Log("Calling VisionServiceClient.DescribeAsync()...");
-                    string language = (_language.SelectedItem as RecognizeLanguage).ShortCode;
-                    ImageDescription analysisResult = await VisionServiceClient.DescribeImageInStreamAsync(imageFileStream, 3, language);
-                    return analysisResult;
-                }
+                return await RecognizeAsync(
+                    async (ComputerVisionClient VisionServiceClient) => await VisionServiceClient.RecognizeTextInStreamAsync(imageFileStream, RecognitionMode),
+                    headers => headers.OperationLocation);
             }
-
-            // -----------------------------------------------------------------------
-            // KEY SAMPLE CODE ENDS HERE
-            // -----------------------------------------------------------------------
         }
 
         /// <summary>
-        /// Sends a url to Project Oxford and performs description
+        /// Sends a url to Project Oxford and performs Handwriting Recognition
         /// </summary>
-        /// <param name="imageUrl">The url of the image to describe</param>
+        /// <param name="imageUrl">The url to perform recognition on</param>
         /// <returns></returns>
-        private async Task<ImageDescription> DescribeUrl(string imageUrl)
+        private async Task<TextOperationResult> RecognizeUrl(string imageUrl)
+        {
+            return await RecognizeAsync(
+                async (ComputerVisionClient VisionServiceClient) => await VisionServiceClient.RecognizeTextAsync(imageUrl, RecognitionMode),
+                headers => headers.OperationLocation);
+        }
+
+        private async Task<TextOperationResult> RecognizeAsync<T>(Func<ComputerVisionClient, Task<T>> GetHeadersAsyncFunc, Func<T, string> GetOperationUrlFunc) where T : new()
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
             // -----------------------------------------------------------------------
+            var result = default(TextOperationResult);
 
             //
             // Create Project Oxford Vision API Service client
@@ -113,13 +107,38 @@ namespace VisionAPI_WPF_Samples
             {
                 Log("VisionServiceClient is created");
 
-                //
-                // Describe the url and ask for three captions
-                //
-                Log("Calling VisionServiceClient.DescribeAsync()...");
-                string language = (_language.SelectedItem as RecognizeLanguage).ShortCode;
-                ImageDescription analysisResult = await VisionServiceClient.DescribeImageAsync(imageUrl, 3, language);
-                return analysisResult;
+                try
+                {
+                    Log("Calling VisionServiceClient.CreateHandwritingRecognitionOperationAsync()...");
+
+                    T recognizeHeaders = await GetHeadersAsyncFunc(VisionServiceClient);
+                    string operationUrl = GetOperationUrlFunc(recognizeHeaders);
+                    string operationId = operationUrl.Substring(operationUrl.LastIndexOf('/') + 1);
+
+                    for (int attempt = 1; attempt <= MaxRetryTimes; attempt++)
+                    {
+                        Log("Calling VisionServiceClient.GetHandwritingRecognitionOperationResultAsync()...");
+                        result = await VisionServiceClient.GetTextOperationResultAsync(operationId);
+
+                        if (result.Status == TextOperationStatusCodes.Failed || result.Status == TextOperationStatusCodes.Succeeded)
+                        {
+                            break;
+                        }
+
+                        Log(string.Format("Server status: {0}, wait {1} seconds...", result.Status, QueryWaitTimeInSecond));
+                        await Task.Delay(QueryWaitTimeInSecond);
+
+                        Log("Calling VisionServiceClient.GetHandwritingRecognitionOperationResultAsync()...");
+                        result = await VisionServiceClient.GetTextOperationResultAsync(operationId);
+                    }
+
+                }
+                catch (ClientException ex)
+                {
+                    result = new TextOperationResult() { Status = TextOperationStatusCodes.Failed };
+                    Log(ex.Error.Message);
+                }
+                return result;
             }
 
             // -----------------------------------------------------------------------
@@ -135,28 +154,27 @@ namespace VisionAPI_WPF_Samples
         /// <returns></returns>
         protected override async Task DoWork(Uri imageUri, bool upload)
         {
-            _status.Text = "Describing...";
+            _status.Text = "Performing Handwriting recognition...";
 
             //
             // Either upload an image, or supply a url
             //
-            ImageDescription analysisResult;
+            TextOperationResult result;
             if (upload)
             {
-                analysisResult = await UploadAndDescribeImage(imageUri.LocalPath);
+                result = await UploadAndRecognizeImage(imageUri.LocalPath);
             }
             else
             {
-                analysisResult = await DescribeUrl(imageUri.AbsoluteUri);
+                result = await RecognizeUrl(imageUri.AbsoluteUri);
             }
-            _status.Text = "Describing Done";
+            _status.Text = "Handwriting recognition finished!";
 
             //
             // Log analysis result in the log window
             //
-            Log("");
-            Log("Describe Result:");
-            LogDescriptionResults(analysisResult);
+            LogHandwritingRecognitionResult(result);
+            Log("Handwriting recognition finished!");
         }
     }
 }

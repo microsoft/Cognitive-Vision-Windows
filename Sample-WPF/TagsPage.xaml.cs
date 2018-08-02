@@ -1,15 +1,15 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license.
-// 
+//
 // Microsoft Cognitive Services (formerly Project Oxford): https://www.microsoft.com/cognitive-services
-// 
+//
 // Microsoft Cognitive Services (formerly Project Oxford) GitHub:
 // https://github.com/Microsoft/Cognitive-Vision-Windows
-// 
+//
 // Copyright (c) Microsoft Corporation
 // All rights reserved.
-// 
+//
 // MIT License:
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -18,10 +18,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED ""AS IS"", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -29,7 +29,7 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
 using System;
 using System.IO;
@@ -39,8 +39,8 @@ using System.Threading.Tasks;
 // KEY SAMPLE CODE STARTS HERE
 // Use the following namesapce for VisionServiceClient
 // -----------------------------------------------------------------------
-using Microsoft.ProjectOxford.Vision;
-using Microsoft.ProjectOxford.Vision.Contract;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 // -----------------------------------------------------------------------
 // KEY SAMPLE CODE ENDS HERE
 // -----------------------------------------------------------------------
@@ -57,6 +57,7 @@ namespace VisionAPI_WPF_Samples
             InitializeComponent();
             this.PreviewImage = _imagePreview;
             this.URLTextBox = _urlTextBox;
+            this._language.ItemsSource = new RecognizeLanguage[] { RecognizeLanguage.EN, RecognizeLanguage.JA, RecognizeLanguage.PT, RecognizeLanguage.ZH };
         }
 
         /// <summary>
@@ -64,7 +65,7 @@ namespace VisionAPI_WPF_Samples
         /// </summary>
         /// <param name="imageFilePath">The image file path.</param>
         /// <returns></returns>
-        private async Task<AnalysisResult> UploadAndGetTagsForImage(string imageFilePath)
+        private async Task<TagResult> UploadAndGetTagsForImage(string imageFilePath)
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
@@ -73,16 +74,17 @@ namespace VisionAPI_WPF_Samples
             //
             // Create Project Oxford Vision API Service client
             //
-            VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey, "https://westcentralus.api.cognitive.microsoft.com/vision/v1.0");
-            Log("VisionServiceClient is created");
-
+            using (ComputerVisionClient VisionServiceClient = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
             using (Stream imageFileStream = File.OpenRead(imageFilePath))
             {
+                Log("VisionServiceClient is created");
+
                 //
                 // Upload and image and generate tags
                 //
                 Log("Calling VisionServiceClient.GetTagsAsync()...");
-                AnalysisResult analysisResult = await VisionServiceClient.GetTagsAsync(imageFileStream);
+                string language = (_language.SelectedItem as RecognizeLanguage).ShortCode;
+                TagResult analysisResult = await VisionServiceClient.TagImageInStreamAsync(imageFileStream, language);
                 return analysisResult;
             }
 
@@ -96,7 +98,7 @@ namespace VisionAPI_WPF_Samples
         /// </summary>
         /// <param name="imageUrl">The url of the image to generate tags for</param>
         /// <returns></returns>
-        private async Task<AnalysisResult> GenerateTagsForUrl(string imageUrl)
+        private async Task<TagResult> GenerateTagsForUrl(string imageUrl)
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
@@ -105,15 +107,18 @@ namespace VisionAPI_WPF_Samples
             //
             // Create Project Oxford Vision API Service client
             //
-            VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey);
-            Log("VisionServiceClient is created");
+            using (var VisionServiceClient = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
+            {
+                Log("VisionServiceClient is created");
 
-            //
-            // Generate tags for the given url
-            //
-            Log("Calling VisionServiceClient.GetTagsAsync()...");
-            AnalysisResult analysisResult = await VisionServiceClient.GetTagsAsync(imageUrl);
-            return analysisResult;
+                //
+                // Generate tags for the given url
+                //
+                Log("Calling VisionServiceClient.GetTagsAsync()...");
+                string language = (_language.SelectedItem as RecognizeLanguage).ShortCode;
+                TagResult analysisResult = await VisionServiceClient.TagImageAsync(imageUrl, language);
+                return analysisResult;
+            }
 
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE ENDS HERE
@@ -128,28 +133,28 @@ namespace VisionAPI_WPF_Samples
         /// <returns></returns>
         protected override async Task DoWork(Uri imageUri, bool upload)
         {
-            _status.Text = "Describing...";
+            _status.Text = "Generating tags...";
 
             //
             // Either upload an image, or supply a url
             //
-            AnalysisResult analysisResult;
+            TagResult tagResult;
             if (upload)
             {
-                analysisResult = await UploadAndGetTagsForImage(imageUri.LocalPath);
+                tagResult = await UploadAndGetTagsForImage(imageUri.LocalPath);
             }
             else
             {
-                analysisResult = await GenerateTagsForUrl(imageUri.AbsoluteUri);
+                tagResult = await GenerateTagsForUrl(imageUri.AbsoluteUri);
             }
-            _status.Text = "Describing Done";
+            _status.Text = "Done";
 
             //
             // Log analysis result in the log window
             //
             Log("");
             Log("Get Tags Result:");
-            LogAnalysisResult(analysisResult);
+            LogTagResult(tagResult);
         }
     }
 }

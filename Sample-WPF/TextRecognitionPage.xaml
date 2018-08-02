@@ -1,4 +1,4 @@
-﻿<local:ImageScenarioPage x:Class="VisionAPI_WPF_Samples.HandwritingRecognitionPage"
+﻿<local:ImageScenarioPage x:Class="VisionAPI_WPF_Samples.TextRecognitionPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -15,11 +15,15 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Margin="5,5,0,0" FontWeight="Bold" Text="Recognize Handwriting Text (English)"/>
-        <StackPanel Orientation="Vertical" Grid.Row="1" >
-            <TextBlock Margin="5, 5, 0, 0" Text="Choose an image to recognize by clicking either [Load Image] or paste in an image url and then clicking [Recognize Text]"/>
+        <StackPanel Orientation="Vertical" Grid.Row="1" Margin="5,5,0,0" >
+            <TextBlock Margin="5, 5, 0, 0" Text="Choose a mode and image to recognize by clicking either [Load Image] or paste in an image url and then clicking [Recognize Text]"/>
+            <ComboBox x:Name="_mode"  Margin="5, 5, 0, 0" Width="110" HorizontalAlignment="Left">
+                <ComboBoxItem IsSelected="True">Printed</ComboBoxItem>
+                <ComboBoxItem>Handwritten</ComboBoxItem>
+            </ComboBox>
             <Button Click="LoadImageButton_Click" Margin="5, 5, 0, 0" Width="80" HorizontalAlignment="Left">Load Image</Button>
             <StackPanel Orientation="Horizontal" Margin="5, 5, 0, 0">
-                <TextBox x:Name="_urlTextBox" Width="361" Margin="0, 5, 0, 0">https://portalstoragewu.azureedge.net/vision/HandWritingOCR/6.jpg</TextBox>
+                <TextBox x:Name="_urlTextBox" Width="361" Margin="5, 5, 0, 0">https://raw.githubusercontent.com/Microsoft/Cognitive-Vision-Windows/master/Sample-WPF/Assets/printed.jpg</TextBox>
                 <Button Click="SubmitUriButton_Click" Margin="5, 5, 0, 0">Recognize Text</Button>
             </StackPanel>
         </StackPanel>

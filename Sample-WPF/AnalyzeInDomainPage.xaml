@@ -33,9 +33,16 @@
                         </ComboBox.ItemTemplate>
                     </ComboBox>
                 </StackPanel>
+                <ComboBox x:Name="_language" Margin="5, 5, 0, 5" Width="80" HorizontalAlignment="Left" HorizontalContentAlignment="Left" SelectedIndex="0">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding LongName}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
                 <Button Click="LoadImageButton_Click" Margin="5, 5, 0, 0" Width="80" HorizontalAlignment="Left">Load Image</Button>
                 <StackPanel Orientation="Horizontal" Margin="5, 5, 0, 0">
-                    <TextBox x:Name="_urlTextBox" Width="361" Margin="0, 5, 0, 0">https://oxfordportal.blob.core.windows.net/vision/Analysis/1-1.jpg</TextBox>
+                    <TextBox x:Name="_urlTextBox" Width="361" Margin="0, 5, 0, 0">https://raw.githubusercontent.com/Microsoft/Cognitive-Vision-Windows/master/Sample-WPF/Assets/printed.jpg</TextBox>
                     <Button Click="SubmitUriButton_Click" Margin="5, 5, 0, 0">Analyze</Button>
                 </StackPanel>
             </StackPanel>

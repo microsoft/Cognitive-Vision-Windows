@@ -1,15 +1,15 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license.
-// 
+//
 // Microsoft Cognitive Services (formerly Project Oxford): https://www.microsoft.com/cognitive-services
-// 
+//
 // Microsoft Cognitive Services (formerly Project Oxford) GitHub:
 // https://github.com/Microsoft/Cognitive-Vision-Windows
-// 
+//
 // Copyright (c) Microsoft Corporation
 // All rights reserved.
-// 
+//
 // MIT License:
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -18,10 +18,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED ""AS IS"", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -29,7 +29,7 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
 using System;
 using System.Collections.Generic;
@@ -40,8 +40,8 @@ using System.Threading.Tasks;
 // KEY SAMPLE CODE STARTS HERE
 // Use the following namesapce for VisionServiceClient
 // -----------------------------------------------------------------------
-using Microsoft.ProjectOxford.Vision;
-using Microsoft.ProjectOxford.Vision.Contract;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 // -----------------------------------------------------------------------
 // KEY SAMPLE CODE ENDS HERE
 // -----------------------------------------------------------------------
@@ -53,6 +53,8 @@ namespace VisionAPI_WPF_Samples
     /// </summary>
     public partial class OCRPage : ImageScenarioPage
     {
+        const bool NoDetectOrientation = false;
+
         public OCRPage()
         {
             InitializeComponent();
@@ -67,7 +69,7 @@ namespace VisionAPI_WPF_Samples
         /// <param name="imageFilePath">The image file path.</param>
         /// <param name="language">The language code to recognize for</param>
         /// <returns></returns>
-        private async Task<OcrResults> UploadAndRecognizeImage(string imageFilePath, string language)
+        private async Task<OcrResult> UploadAndRecognizeImage(string imageFilePath, OcrLanguages language)
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
@@ -76,17 +78,19 @@ namespace VisionAPI_WPF_Samples
             //
             // Create Project Oxford Vision API Service client
             //
-            VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey, "https://westcentralus.api.cognitive.microsoft.com/vision/v1.0");
-            Log("VisionServiceClient is created");
-
-            using (Stream imageFileStream = File.OpenRead(imageFilePath))
+            using (var VisionServiceClient = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
             {
-                //
-                // Upload an image and perform OCR
-                //
-                Log("Calling VisionServiceClient.RecognizeTextAsync()...");
-                OcrResults ocrResult = await VisionServiceClient.RecognizeTextAsync(imageFileStream, language);
-                return ocrResult;
+                Log("VisionServiceClient is created");
+
+                using (Stream imageFileStream = File.OpenRead(imageFilePath))
+                {
+                    //
+                    // Upload an image and perform OCR
+                    //
+                    Log("Calling VisionServiceClient.RecognizeTextAsync()...");
+                    OcrResult ocrResult = await VisionServiceClient.RecognizePrintedTextInStreamAsync(NoDetectOrientation, imageFileStream, language);
+                    return ocrResult;
+                }
             }
 
             // -----------------------------------------------------------------------
@@ -100,7 +104,7 @@ namespace VisionAPI_WPF_Samples
         /// <param name="imageUrl">The url to perform recognition on</param>
         /// <param name="language">The language code to recognize for</param>
         /// <returns></returns>
-        private async Task<OcrResults> RecognizeUrl(string imageUrl, string language)
+        private async Task<OcrResult> RecognizeUrl(string imageUrl, OcrLanguages language)
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
@@ -109,15 +113,17 @@ namespace VisionAPI_WPF_Samples
             //
             // Create Project Oxford Vision API Service client
             //
-            VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey);
-            Log("VisionServiceClient is created");
+            using (var VisionServiceClient = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
+            {
+                Log("VisionServiceClient is created");
 
-            //
-            // Perform OCR on the given url
-            //
-            Log("Calling VisionServiceClient.RecognizeTextAsync()...");
-            OcrResults ocrResult = await VisionServiceClient.RecognizeTextAsync(imageUrl, language);
-            return ocrResult;
+                //
+                // Perform OCR on the given url
+                //
+                Log("Calling VisionServiceClient.RecognizeTextAsync()...");
+                OcrResult ocrResult = await VisionServiceClient.RecognizePrintedTextAsync(NoDetectOrientation, imageUrl, language);
+                return ocrResult;
+            }
 
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE ENDS HERE
@@ -134,12 +140,12 @@ namespace VisionAPI_WPF_Samples
         {
             _status.Text = "Performing OCR...";
 
-            string languageCode = (languageComboBox.SelectedItem as RecognizeLanguage).ShortCode;
+            OcrLanguages languageCode = (languageComboBox.SelectedItem as RecognizeLanguage).OcrEnum;
 
             //
             // Either upload an image, or supply a url
             //
-            OcrResults ocrResult;
+            OcrResult ocrResult;
             if (upload)
             {
                 ocrResult = await UploadAndRecognizeImage(imageUri.LocalPath, languageCode);
@@ -162,40 +168,34 @@ namespace VisionAPI_WPF_Samples
         {
             return new List<RecognizeLanguage>()
             {
-                new RecognizeLanguage(){ ShortCode = "unk",     LongName = "AutoDetect"  },
-                new RecognizeLanguage(){ ShortCode = "ar",      LongName = "Arabic"  },
-                new RecognizeLanguage(){ ShortCode = "zh-Hans", LongName = "Chinese (Simplified)"  },
-                new RecognizeLanguage(){ ShortCode = "zh-Hant", LongName = "Chinese (Traditional)"  },
-                new RecognizeLanguage(){ ShortCode = "cs",      LongName = "Czech"  },
-                new RecognizeLanguage(){ ShortCode = "da",      LongName = "Danish"  },
-                new RecognizeLanguage(){ ShortCode = "nl",      LongName = "Dutch"  },
-                new RecognizeLanguage(){ ShortCode = "en",      LongName = "English"  },
-                new RecognizeLanguage(){ ShortCode = "fi",      LongName = "Finnish"  },
-                new RecognizeLanguage(){ ShortCode = "fr",      LongName = "French"  },
-                new RecognizeLanguage(){ ShortCode = "de",      LongName = "German"  },
-                new RecognizeLanguage(){ ShortCode = "el",      LongName = "Greek"  },
-                new RecognizeLanguage(){ ShortCode = "hu",      LongName = "Hungarian"  },
-                new RecognizeLanguage(){ ShortCode = "it",      LongName = "Italian"  },
-                new RecognizeLanguage(){ ShortCode = "ja",      LongName = "Japanese"  },
-                new RecognizeLanguage(){ ShortCode = "ko",      LongName = "Korean"  },
-                new RecognizeLanguage(){ ShortCode = "nb",      LongName = "Norwegian"  },
-                new RecognizeLanguage(){ ShortCode = "pl",      LongName = "Polish"  },
-                new RecognizeLanguage(){ ShortCode = "pt",      LongName = "Portuguese"  },
-                new RecognizeLanguage(){ ShortCode = "ro",      LongName = "Romanian" },
-                new RecognizeLanguage(){ ShortCode = "ru",      LongName = "Russian"  },
-                new RecognizeLanguage(){ ShortCode = "sr-Cyrl", LongName = "Serbian (Cyrillic)" },
-                new RecognizeLanguage(){ ShortCode = "sr-Latn", LongName = "Serbian (Latin)" },
-                new RecognizeLanguage(){ ShortCode = "sk",      LongName = "Slovak" },
-                new RecognizeLanguage(){ ShortCode = "es",      LongName = "Spanish"  },
-                new RecognizeLanguage(){ ShortCode = "sv",      LongName = "Swedish"  },
-                new RecognizeLanguage(){ ShortCode = "tr",      LongName = "Turkish"  }
+                RecognizeLanguage.UNK,
+                RecognizeLanguage.AR,
+                RecognizeLanguage.ZH_CN,
+                RecognizeLanguage.ZH_TW,
+                RecognizeLanguage.CS,
+                RecognizeLanguage.DA,
+                RecognizeLanguage.NL,
+                RecognizeLanguage.EN,
+                RecognizeLanguage.FI,
+                RecognizeLanguage.FR,
+                RecognizeLanguage.DE,
+                RecognizeLanguage.EL,
+                RecognizeLanguage.HU,
+                RecognizeLanguage.IT,
+                RecognizeLanguage.JA,
+                RecognizeLanguage.KO,
+                RecognizeLanguage.NB,
+                RecognizeLanguage.PL,
+                RecognizeLanguage.PT,
+                RecognizeLanguage.RO,
+                RecognizeLanguage.RU,
+                RecognizeLanguage.SR_CYRL,
+                RecognizeLanguage.SR_LATN,
+                RecognizeLanguage.SK,
+                RecognizeLanguage.ES,
+                RecognizeLanguage.SV,
+                RecognizeLanguage.TR,
             };
         }
-    }
-
-    public class RecognizeLanguage
-    {
-        public string ShortCode { get; set; }
-        public string LongName { get; set; }
     }
 }
