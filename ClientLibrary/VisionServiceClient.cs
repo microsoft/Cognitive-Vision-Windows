@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license.
 //
@@ -32,96 +32,28 @@
 //
 
 using System;
-using System.Dynamic;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-
-using Microsoft.ProjectOxford.Vision.Contract;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using System.Collections.Generic;
+using System.Net.Http;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ProjectOxford.Common;
+using Microsoft.ProjectOxford.Vision.Contract;
 
 namespace Microsoft.ProjectOxford.Vision
 {
     /// <summary>
     /// The vision service client.
     /// </summary>
-    public class VisionServiceClient : IVisionServiceClient
+    public class VisionServiceClient : ServiceClient, IVisionServiceClient
     {
         /// <summary>
-        /// The service host
+        /// The header key for authorization
         /// </summary>
-        private const string DEFAULT_API_ROOT = "https://westcentralus.api.cognitive.microsoft.com/vision/v2.0";
-
-        /// <summary>
-        /// Host root, overridable by subclasses, intended for testing.
-        /// </summary>
-        protected virtual string ServiceHost => _apiRoot;
-
-        /// <summary>
-        /// Default timeout for calls
-        /// </summary>
-        private const int DEFAULT_TIMEOUT = 2 * 60 * 1000; // 2 minutes timeout
-
-        /// <summary>
-        /// Default timeout for calls, overridable by subclasses
-        /// </summary>
-        protected virtual int DefaultTimeout => DEFAULT_TIMEOUT;
-
-        /// <summary>
-        /// The analyze query
-        /// </summary>
-        private const string AnalyzeQuery = "analyze";
-
-        /// <summary>
-        /// The describe query
-        /// </summary>
-        private const string DescribeQuery = "describe";
-
-        /// <summary>
-        /// The models-based query path part
-        /// </summary>
-        private const string ModelsPart = "models";
-
-        /// <summary>
-        /// The generate thumbnails query
-        /// </summary>
-        private const string ThumbnailsQuery = "generateThumbnail";
-
-        /// <summary>
-        /// Query parameter for maximum description candidates.
-        /// </summary>
-        private const string _maxCandidatesName = "maxCandidates";
-
-        /// <summary>
-        /// The subscription key name
-        /// </summary>
-        private const string _subscriptionKeyName = "subscription-key";
-
-        /// <summary>
-        /// The default resolver
-        /// </summary>
-        private CamelCasePropertyNamesContractResolver _defaultResolver = new CamelCasePropertyNamesContractResolver();
-
-        /// <summary>
-        /// The subscription key
-        /// </summary>
-        private string _subscriptionKey;
-
-        /// <summary>
-        /// The root URI for Vision API
-        /// </summary>
-        private readonly string _apiRoot;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="VisionServiceClient"/> class.
-        /// </summary>
-        /// <param name="subscriptionKey">The subscription key.</param>
-        public VisionServiceClient(string subscriptionKey) : this(subscriptionKey, DEFAULT_API_ROOT) { }
+        private const string API_AUTH_HEADER_KEY = "Ocp-Apim-Subscription-Key";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VisionServiceClient"/> class.
@@ -129,9 +61,25 @@ namespace Microsoft.ProjectOxford.Vision
         /// <param name="subscriptionKey">The subscription key.</param>
         /// <param name="apiRoot">Root URI for the service endpoint.</param>
         public VisionServiceClient(string subscriptionKey, string apiRoot)
+            : base()
         {
-            _apiRoot = apiRoot?.TrimEnd('/');
-            _subscriptionKey = subscriptionKey;
+            ApiRoot = apiRoot?.TrimEnd('/');
+            AuthKey = API_AUTH_HEADER_KEY;
+            AuthValue = subscriptionKey;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VisionServiceClient"/> class.
+        /// </summary>
+        /// <param name="httpClient">HTTP client.  The caller is responsible for disposing this object.</param>
+        /// <param name="subscriptionKey">The subscription key.</param>
+        /// <param name="apiRoot">Root URI for the service endpoint.</param>
+        public VisionServiceClient(HttpClient httpClient, string subscriptionKey, string apiRoot)
+            : base(httpClient)
+        {
+            ApiRoot = apiRoot?.TrimEnd('/');
+            AuthKey = API_AUTH_HEADER_KEY;
+            AuthValue = subscriptionKey;
         }
 
         /// <summary>
@@ -139,13 +87,15 @@ namespace Microsoft.ProjectOxford.Vision
         /// </summary>
         /// <param name="url">The URL.</param>
         /// <param name="visualFeatures">The visual features.</param>
+        /// <param name="languageCode">The language code. If omitted, 'en' will be used.</param>
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
         /// <returns>The AnalysisResult object.</returns>
         [Obsolete("Please use the overloaded method which takes IEnumerable<VisualFeature>")]
-        public async Task<AnalysisResult> AnalyzeImageAsync(string url, string[] visualFeatures = null)
+        public async Task<AnalysisResult> AnalyzeImageAsync(string url, string[] visualFeatures = null, string languageCode = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var visualFeatureEnums = visualFeatures?.Select(feature => (VisualFeature)Enum.Parse(typeof(VisualFeature), feature, true));
 
-            return await AnalyzeImageAsync(url, visualFeatureEnums).ConfigureAwait(false);
+            return await AnalyzeImageAsync(url, visualFeatureEnums, null, languageCode, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -153,28 +103,31 @@ namespace Microsoft.ProjectOxford.Vision
         /// </summary>
         /// <param name="imageStream">The image stream.</param>
         /// <param name="visualFeatures">The visual features.</param>
+        /// <param name="languageCode">The language code. If omitted, 'en' will be used.</param>
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
         /// <returns>The AnalysisResult object.</returns>
         [Obsolete("Please use the overloaded method which takes IEnumerable<VisualFeature>")]
-        public async Task<AnalysisResult> AnalyzeImageAsync(Stream imageStream, string[] visualFeatures = null)
+        public Task<AnalysisResult> AnalyzeImageAsync(Stream imageStream, string[] visualFeatures = null, string languageCode = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var visualFeatureEnums = visualFeatures?.Select(feature => (VisualFeature)Enum.Parse(typeof(VisualFeature), feature, true));
 
-            return await AnalyzeImageAsync(imageStream, visualFeatureEnums).ConfigureAwait(false);
+            return AnalyzeImageCommonAsync(imageStream, visualFeatureEnums, null, languageCode, cancellationToken);
         }
 
         /// <summary>
         /// Analyzes the image.
         /// </summary>
-        /// <param name="url">The URL.</param>
+        /// <param name="imageUrl">The URL.</param>
         /// <param name="visualFeatures">The visual features.</param>
+        /// <param name="languageCode">The language code. If omitted, 'en' will be used.</param>
         /// <param name="details">Optional domain-specific models to invoke when appropriate.  To obtain names of models supported, invoke the <see cref="ListModelsAsync">ListModelsAsync</see> method.</param>
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
         /// <returns>The AnalysisResult object.</returns>
-        public async Task<AnalysisResult> AnalyzeImageAsync(string url, IEnumerable<VisualFeature> visualFeatures = null, IEnumerable<string> details = null)
+        public Task<AnalysisResult> AnalyzeImageAsync(string imageUrl, IEnumerable<VisualFeature> visualFeatures = null, IEnumerable<string> details = null, string languageCode = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            dynamic request = new ExpandoObject();
-            request.url = url;
+            var requestBody = new UrlRequest() { url = imageUrl };
 
-            return await AnalyzeImageAsync<ExpandoObject>(request, visualFeatures, details).ConfigureAwait(false);
+            return AnalyzeImageCommonAsync(requestBody, visualFeatures, details, languageCode, cancellationToken);
         }
 
         /// <summary>
@@ -183,33 +136,35 @@ namespace Microsoft.ProjectOxford.Vision
         /// <param name="imageStream">The image stream.</param>
         /// <param name="visualFeatures">The visual features.</param>
         /// <param name="details">Optional domain-specific models to invoke when appropriate.  To obtain names of models supported, invoke the <see cref="ListModelsAsync">ListModelsAsync</see> method.</param>
+        /// <param name="languageCode">The language code. If omitted, 'en' will be used.</param>
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
         /// <returns>The AnalysisResult object.</returns>
-        public async Task<AnalysisResult> AnalyzeImageAsync(Stream imageStream, IEnumerable<VisualFeature> visualFeatures = null, IEnumerable<string> details = null)
+        public Task<AnalysisResult> AnalyzeImageAsync(Stream imageStream, IEnumerable<VisualFeature> visualFeatures = null, IEnumerable<string> details = null, string languageCode = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await AnalyzeImageAsync<Stream>(imageStream, visualFeatures, details).ConfigureAwait(false);
+            return AnalyzeImageCommonAsync(imageStream, visualFeatures, details, languageCode, cancellationToken);
         }
 
         /// <summary>
         /// Analyzes the image.
         /// </summary>
-        /// <param name="body">Body </param>
+        /// <param name="requestBody">Body </param>
         /// <param name="visualFeatures">The visual features.</param>
         /// <param name="details">Optional domain-specific models to invoke when appropriate.  To obtain names of models supported, invoke the <see cref="ListModelsAsync">ListModelsAsync</see> method.</param>
+        /// <param name="languageCode">The language code. If omitted, 'en' will be used.</param>
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
         /// <returns>The AnalysisResult object.</returns>
-        private async Task<AnalysisResult> AnalyzeImageAsync<T>(T body, IEnumerable<VisualFeature> visualFeatures, IEnumerable<string> details)
+        private async Task<AnalysisResult> AnalyzeImageCommonAsync<T>(T requestBody, IEnumerable<VisualFeature> visualFeatures, IEnumerable<string> details, string languageCode, CancellationToken cancellationToken)
         {
-            var requestUrl = new StringBuilder(ServiceHost).Append('/').Append(AnalyzeQuery).Append("?");
+            var requestUrl = new StringBuilder("/analyze?");
             requestUrl.Append(string.Join("&", new List<string>
             {
                 VisualFeaturesToString(visualFeatures),
-                DetailsToString(details),
-                _subscriptionKeyName + "=" + _subscriptionKey
+                DetailsToQueryParam(details),
+                LanguageCodeToQueryParam(languageCode)
             }
             .Where(s => !string.IsNullOrEmpty(s))));
 
-            var request = WebRequest.Create(requestUrl.ToString());
-
-            return await this.SendAsync<T, AnalysisResult>("POST", body, request).ConfigureAwait(false);
+            return await PostAsync<T, AnalysisResult>(requestUrl.ToString(), requestBody, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -217,11 +172,13 @@ namespace Microsoft.ProjectOxford.Vision
         /// </summary>
         /// <param name="url">The image URL.</param>
         /// <param name="model">Domain-specific model.</param>
-        /// <remarks>The list of currently aailable models can be listed via the <see cref="ListModelsAsync"/> method.</remarks>
+        /// <param name="languageCode">The language code. If omitted, 'en' will be used.</param>
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
+        /// <remarks>The list of currently available models can be listed via the <see cref="ListModelsAsync"/> method.</remarks>
         /// <returns>The AnalysisInDomainResult object.</returns>
-        public async Task<AnalysisInDomainResult> AnalyzeImageInDomainAsync(string url, Model model)
+        public async Task<AnalysisInDomainResult> AnalyzeImageInDomainAsync(string url, Model model, string languageCode = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await AnalyzeImageInDomainAsync(url, model.Name).ConfigureAwait(false);
+            return await AnalyzeImageInDomainAsync(url, model.Name, languageCode, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -229,29 +186,29 @@ namespace Microsoft.ProjectOxford.Vision
         /// </summary>
         /// <param name="imageStream">The image stream.</param>
         /// <param name="model">Domain-specific model.</param>
-        /// <remarks>The list of currently aailable models can be listed via the <see cref="ListModelsAsync"/> method.</remarks>
+        /// <param name="languageCode">The language code. If omitted, 'en' will be used.</param>
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
+        /// <remarks>The list of currently available models can be listed via the <see cref="ListModelsAsync"/> method.</remarks>
         /// <returns>The AnalysisInDomainResult object.</returns>
-        public async Task<AnalysisInDomainResult> AnalyzeImageInDomainAsync(Stream imageStream, Model model)
+        public Task<AnalysisInDomainResult> AnalyzeImageInDomainAsync(Stream imageStream, Model model, string languageCode = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await AnalyzeImageInDomainAsync(imageStream, model.Name).ConfigureAwait(false);
+            return AnalyzeImageInDomainAsync(imageStream, model.Name, languageCode, cancellationToken);
         }
 
         /// <summary>
         /// Analyzes the image using a domain-specific model.
         /// </summary>
-        /// <param name="url">The image URL.</param>
+        /// <param name="imageUrl">The image URL.</param>
         /// <param name="modelName">Name of the domain-specific model.</param>
-        /// <remarks>The list of currently aailable models can be listed via the <see cref="ListModelsAsync"/> method.</remarks>
+        /// <param name="languageCode">The language code. If omitted, 'en' will be used.</param>
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
+        /// <remarks>The list of currently available models can be listed via the <see cref="ListModelsAsync"/> method.</remarks>
         /// <returns>The AnalysisInDomainResult object.</returns>
-        public async Task<AnalysisInDomainResult> AnalyzeImageInDomainAsync(string url, string modelName)
+        public Task<AnalysisInDomainResult> AnalyzeImageInDomainAsync(string imageUrl, string modelName, string languageCode = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            string requestUrl = string.Format("{0}/{1}/{2}/{3}?{4}={5}", ServiceHost, ModelsPart, modelName, AnalyzeQuery, _subscriptionKeyName, _subscriptionKey);
-            var request = WebRequest.Create(requestUrl);
+            var requestBody = new UrlRequest() { url = imageUrl };
 
-            dynamic requestObject = new ExpandoObject();
-            requestObject.url = url;
-
-            return await this.SendAsync<ExpandoObject, AnalysisInDomainResult>("POST", requestObject, request).ConfigureAwait(false);
+            return AnalyzeImageInDomainCommonAsync(requestBody, modelName, languageCode, cancellationToken);
         }
 
         /// <summary>
@@ -259,43 +216,62 @@ namespace Microsoft.ProjectOxford.Vision
         /// </summary>
         /// <param name="imageStream">The image stream.</param>
         /// <param name="modelName">Name of the domain-specific model.</param>
-        /// <remarks>The list of currently aailable models can be listed via the <see cref="ListModelsAsync"/> method.</remarks>
+        /// <param name="languageCode">The language code. If omitted, 'en' will be used.</param>
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
+        /// <remarks>The list of currently available models can be listed via the <see cref="ListModelsAsync"/> method.</remarks>
         /// <returns>The AnalysisInDomainResult object.</returns>
-        public async Task<AnalysisInDomainResult> AnalyzeImageInDomainAsync(Stream imageStream, string modelName)
+        public Task<AnalysisInDomainResult> AnalyzeImageInDomainAsync(Stream imageStream, string modelName, string languageCode = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            string requestUrl = string.Format("{0}/{1}/{2}/{3}?{4}={5}", ServiceHost, ModelsPart, modelName, AnalyzeQuery, _subscriptionKeyName, _subscriptionKey);
-            var request = WebRequest.Create(requestUrl);
+            return AnalyzeImageInDomainCommonAsync(imageStream, modelName, languageCode, cancellationToken);
+        }
 
-            return await this.SendAsync<Stream, AnalysisInDomainResult>("POST", imageStream, request).ConfigureAwait(false);
+        private async Task<AnalysisInDomainResult> AnalyzeImageInDomainCommonAsync<T>(T requestBody, string modelName, string languageCode, CancellationToken cancellationToken)
+        {
+            var requestUrl = new StringBuilder("/models/").Append(modelName).Append("/analyze?");
+            requestUrl.Append(string.Join("&", new List<string>
+            {
+                LanguageCodeToQueryParam(languageCode)
+            }
+            .Where(s => !string.IsNullOrEmpty(s))));
+
+            return await PostAsync<T, AnalysisInDomainResult>(requestUrl.ToString(), requestBody, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Lists the domain-specific image-analysis models.
         /// </summary>
-        /// <returns>An ModelResult, containing an array of Model objects.</returns>
-        public async Task<ModelResult> ListModelsAsync()
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
+        /// <returns>A ModelResult, containing an array of domain-specific models and associated information.</returns>
+        public async Task<ModelResult> ListModelsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            string requestUrl = string.Format("{0}/{1}?{2}={3}", ServiceHost, ModelsPart, _subscriptionKeyName, _subscriptionKey);
-            var request = WebRequest.Create(requestUrl);
-
-            return await this.GetAsync<ModelResult>("GET", request).ConfigureAwait(false);
+            return await GetAsync<ModelResult>("/models", cancellationToken).ConfigureAwait(false);
         }
+
         /// <summary>
-        /// 
         /// Gets the description of an image.
         /// </summary>
         /// <param name="url">The image URL.</param>
         /// <param name="maxCandidates">Maximum number of candidates to return.  Defaults to 1.</param>
-        /// <returns>A DescribeResult object.</returns>
-        public async Task<AnalysisResult> DescribeAsync(string url, int maxCandidates = 1)
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
+        /// <returns>An AnalysisResult object with an image description.</returns>
+        public Task<AnalysisResult> DescribeAsync(string url, int maxCandidates = 1, CancellationToken cancellationToken = default(CancellationToken))
         {
-            string requestUrl = string.Format("{0}/{1}?{2}={3}&{4}={5}", ServiceHost, DescribeQuery, _maxCandidatesName, maxCandidates, _subscriptionKeyName, _subscriptionKey);
-            var request = WebRequest.Create(requestUrl);
+            return DescribeAsync(url, string.Empty, maxCandidates, cancellationToken);
+        }
 
-            dynamic requestObject = new ExpandoObject();
-            requestObject.url = url;
+        /// <summary>
+        /// Gets the description of an image.
+        /// </summary>
+        /// <param name="imageUrl">The image URL.</param>
+        /// <param name="languageCode">Optional language; please refer to online documentation for supported languages.</param>
+        /// <param name="maxCandidates">Maximum number of candidates to return.</param>
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
+        /// <returns>An AnalysisResult object with an image description.</returns>
+        public Task<AnalysisResult> DescribeAsync(string imageUrl, string languageCode, int maxCandidates = 1, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var requestBody = new UrlRequest() { url = imageUrl };
 
-            return await this.SendAsync<ExpandoObject, AnalysisResult>("POST", requestObject, request).ConfigureAwait(false);
+            return DescribeCommonAsync(requestBody, languageCode, maxCandidates, cancellationToken);
         }
 
         /// <summary>
@@ -303,32 +279,53 @@ namespace Microsoft.ProjectOxford.Vision
         /// </summary>
         /// <param name="imageStream">The image stream.</param>
         /// <param name="maxCandidates">Maximum number of candidates to return.  Defaults to 1.</param>
-        /// <returns>A DescribeResult object.</returns>
-        public async Task<AnalysisResult> DescribeAsync(Stream imageStream, int maxCandidates = 1)
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
+        /// <returns>An AnalysisResult object with an image description.</returns>
+        public Task<AnalysisResult> DescribeAsync(Stream imageStream, int maxCandidates = 1, CancellationToken cancellationToken = default(CancellationToken))
         {
-            string requestUrl = string.Format("{0}/{1}?{2}={3}&{4}={5}", ServiceHost, DescribeQuery, _maxCandidatesName, maxCandidates, _subscriptionKeyName, _subscriptionKey);
-            var request = WebRequest.Create(requestUrl);
+            return DescribeAsync(imageStream, string.Empty, maxCandidates, cancellationToken);
+        }
 
-            return await this.SendAsync<Stream, AnalysisResult>("POST", imageStream, request).ConfigureAwait(false);
+        /// <summary>
+        /// Gets the description of an image.
+        /// </summary>
+        /// <param name="imageStream">The image stream.</param>
+        /// <param name="languageCode">language; please refer to online documentation for supported languages.</param>
+        /// <param name="maxCandidates">Maximum number of candidates to return.</param>
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
+        /// <returns>An AnalysisResult object with an image description.</returns>
+        public Task<AnalysisResult> DescribeAsync(Stream imageStream, string languageCode, int maxCandidates = 1, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return DescribeCommonAsync(imageStream, languageCode, maxCandidates, cancellationToken);
+        }
+
+        private async Task<AnalysisResult> DescribeCommonAsync<T>(T requestBody, string languageCode, int maxCandidates, CancellationToken cancellationToken)
+        {
+            var requestUrl = new StringBuilder("/describe?");
+            requestUrl.Append(string.Join("&", new List<string>
+            {
+                string.Format(CultureInfo.InvariantCulture, "maxCandidates={0}", maxCandidates),
+                LanguageCodeToQueryParam(languageCode)
+            }
+            .Where(s => !string.IsNullOrEmpty(s))));
+
+            return await PostAsync<T, AnalysisResult>(requestUrl.ToString(), requestBody, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Gets the thumbnail.
         /// </summary>
-        /// <param name="url">The URL.</param>
+        /// <param name="imageUrl">The URL.</param>
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
         /// <param name="smartCropping">if set to <c>true</c> [smart cropping].</param>
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
         /// <returns>Image bytes</returns>
-        public async Task<byte[]> GetThumbnailAsync(string url, int width, int height, bool smartCropping = true)
+        public Task<byte[]> GetThumbnailAsync(string imageUrl, int width, int height, bool smartCropping = true, CancellationToken cancellationToken = default(CancellationToken))
         {
-            string requestUrl = string.Format("{0}/{1}?width={2}&height={3}&smartCropping={4}&{5}={6}", ServiceHost, ThumbnailsQuery, width, height, smartCropping, _subscriptionKeyName, _subscriptionKey);
-            var request = WebRequest.Create(requestUrl);
+            var requestBody = new UrlRequest() { url = imageUrl };
 
-            dynamic requestObject = new ExpandoObject();
-            requestObject.url = url;
-
-            return await this.SendAsync<ExpandoObject, byte[]>("POST", requestObject, request).ConfigureAwait(false);
+            return GetThumbnailCommonAsync(requestBody, width, height, smartCropping, cancellationToken);
         }
 
         /// <summary>
@@ -338,13 +335,24 @@ namespace Microsoft.ProjectOxford.Vision
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
         /// <param name="smartCropping">if set to <c>true</c> [smart cropping].</param>
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
         /// <returns>Image bytes</returns>
-        public async Task<byte[]> GetThumbnailAsync(Stream stream, int width, int height, bool smartCropping = true)
+        public Task<byte[]> GetThumbnailAsync(Stream stream, int width, int height, bool smartCropping = true, CancellationToken cancellationToken = default(CancellationToken))
         {
-            string requestUrl = string.Format("{0}/{1}?width={2}&height={3}&smartCropping={4}&{5}={6}", ServiceHost, ThumbnailsQuery, width, height, smartCropping, _subscriptionKeyName, _subscriptionKey);
-            var request = WebRequest.Create(requestUrl);
+            return GetThumbnailCommonAsync(stream, width, height, smartCropping, cancellationToken);
+        }
 
-            return await this.SendAsync<Stream, byte[]>("POST", stream, request).ConfigureAwait(false);
+        private async Task<byte[]> GetThumbnailCommonAsync<T>(T requestBody, int width, int height, bool smartCropping = true, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            string requestUrl = new StringBuilder("/generateThumbnail?width=")
+                .Append(width.ToString(CultureInfo.InvariantCulture))
+                .Append("&height=")
+                .Append(height.ToString(CultureInfo.InvariantCulture))
+                .Append("&smartCropping=")
+                .Append(smartCropping)
+                .ToString();
+
+            return await PostAsync<T, byte[]>(requestUrl, requestBody, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -353,16 +361,13 @@ namespace Microsoft.ProjectOxford.Vision
         /// <param name="imageUrl">The image URL.</param>
         /// <param name="languageCode">The language code.</param>
         /// <param name="detectOrientation">if set to <c>true</c> [detect orientation].</param>
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
         /// <returns>The OCR object.</returns>
-        public async Task<OcrResults> RecognizeTextAsync(string imageUrl, string languageCode = LanguageCodes.AutoDetect, bool detectOrientation = true)
+        public Task<OcrResults> RecognizeTextAsync(string imageUrl, string languageCode = LanguageCodes.AutoDetect, bool detectOrientation = true, CancellationToken cancellationToken = default(CancellationToken))
         {
-            string requestUrl = string.Format("{0}/ocr?language={1}&detectOrientation={2}&{3}={4}", ServiceHost, languageCode, detectOrientation, _subscriptionKeyName, _subscriptionKey);
-            var request = WebRequest.Create(requestUrl);
+            var requestBody = new UrlRequest() { url = imageUrl };
 
-            dynamic requestObject = new ExpandoObject();
-            requestObject.url = imageUrl;
-
-            return await this.SendAsync<ExpandoObject, OcrResults>("POST", requestObject, request).ConfigureAwait(false);
+            return RecognizeTextCommonAsync(requestBody, languageCode, detectOrientation, cancellationToken);
         }
 
         /// <summary>
@@ -371,97 +376,114 @@ namespace Microsoft.ProjectOxford.Vision
         /// <param name="imageStream">The image stream.</param>
         /// <param name="languageCode">The language code.</param>
         /// <param name="detectOrientation">if set to <c>true</c> [detect orientation].</param>
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
         /// <returns>The OCR object.</returns>
-        public async Task<OcrResults> RecognizeTextAsync(Stream imageStream, string languageCode = LanguageCodes.AutoDetect, bool detectOrientation = true)
+        public Task<OcrResults> RecognizeTextAsync(Stream imageStream, string languageCode = LanguageCodes.AutoDetect, bool detectOrientation = true, CancellationToken cancellationToken = default(CancellationToken))
         {
-            string requestUrl = string.Format("{0}/ocr?language={1}&detectOrientation={2}&{3}={4}", ServiceHost, languageCode, detectOrientation, _subscriptionKeyName, _subscriptionKey);
-            var request = WebRequest.Create(requestUrl);
+            return RecognizeTextCommonAsync(imageStream, languageCode, detectOrientation, cancellationToken);
+        }
 
-            return await this.SendAsync<Stream, OcrResults>("POST", imageStream, request).ConfigureAwait(false);
+        private async Task<OcrResults> RecognizeTextCommonAsync<T>(T requestBody, string languageCode, bool detectOrientation, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            string requestUrl = new StringBuilder("/ocr?detectOrientation=")
+                .Append(detectOrientation)
+                .Append("&")
+                .Append(LanguageCodeToQueryParam(languageCode))
+                .ToString();
+
+            return await PostAsync<T, OcrResults>(requestUrl, requestBody, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// Recognizes the text asynchronous.
+        /// Recognizes the text asynchronously.
         /// </summary>
         /// <param name="imageUrl">The image URL.</param>
         /// <param name="mode">The recognition mode.</param>
+        /// <param name="languageCode">Optional language code; only English is currently supported.</param>
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
         /// <returns>TextRecognitionOperation created</returns>
-        public async Task<TextRecognitionOperation> CreateTextRecognitionOperationAsync(string imageUrl, TextRecognitionMode mode)
+        public Task<TextRecognitionOperation> CreateTextRecognitionOperationAsync(string imageUrl, TextRecognitionMode mode, string languageCode = LanguageCodes.English, CancellationToken cancellationToken = default(CancellationToken))
         {
-            string requestUrl = string.Format("{0}/recognizeText?mode={1}&{2}={3}", ServiceHost, mode.ToString(), _subscriptionKeyName, _subscriptionKey);
-            var request = WebRequest.Create(requestUrl);
+            var requestBody = new UrlRequest() { url = imageUrl };
 
-            dynamic requestObject = new ExpandoObject();
-            requestObject.url = imageUrl;
-
-            return await this.SendAsync<ExpandoObject, TextRecognitionOperation>("POST", requestObject, request).ConfigureAwait(false);
+            return CreateTextRecognitionOperationCommonAsync(requestBody, mode, cancellationToken);
         }
 
         /// <summary>
-        /// Recognizes the text asynchronous.
+        /// Recognizes the text asynchronously.
         /// </summary>
         /// <param name="imageStream">The image stream.</param>
         /// <param name="mode">The recognition mode.</param>
+        /// <param name="languageCode">Optional language code; only English is currently supported.</param>
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
         /// <returns>TextRecognitionOperation created</returns>
-        public async Task<TextRecognitionOperation> CreateTextRecognitionOperationAsync(Stream imageStream, TextRecognitionMode mode)
+        public Task<TextRecognitionOperation> CreateTextRecognitionOperationAsync(Stream imageStream, TextRecognitionMode mode, string languageCode = LanguageCodes.English, CancellationToken cancellationToken = default(CancellationToken))
         {
-            string requestUrl = string.Format("{0}/recognizeText?mode={1}&{2}={3}", ServiceHost, mode.ToString(), _subscriptionKeyName, _subscriptionKey);
-            var request = WebRequest.Create(requestUrl);
+            return CreateTextRecognitionOperationCommonAsync(imageStream, mode, cancellationToken);
+        }
 
-            return await this.SendAsync<Stream, TextRecognitionOperation>("POST", imageStream, request).ConfigureAwait(false);
+        private async Task<TextRecognitionOperation> CreateTextRecognitionOperationCommonAsync<T>(T requestBody, TextRecognitionMode mode, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            string requestUrl = new StringBuilder("/recognizeText?mode=")
+                .Append(mode.ToString())
+                .ToString();
+
+            return await PostAsync<T, TextRecognitionOperation>(requestUrl, requestBody, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// Get TextRecognitionOperationResult
+        /// Get the TextRecognitionOperationResult
         /// </summary>
-        /// <param name="opeartion">TextRecognitionOperation object</param>
+        /// <param name="operation">TextRecognitionOperationResult object</param>
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
         /// <returns>TextRecognitionOperationResult</returns>
-        public async Task<TextRecognitionOperationResult> GetTextRecognitionOperationResultAsync(TextRecognitionOperation opeartion)
+        public async Task<TextRecognitionOperationResult> GetTextRecognitionOperationResultAsync(TextRecognitionOperation operation, CancellationToken cancellationToken = default(CancellationToken))
         {
-            string requestUrl = string.Format("{0}?{1}={2}", opeartion.Url, _subscriptionKeyName, _subscriptionKey);
-            var request = WebRequest.Create(requestUrl);
-
-            return await this.GetAsync<TextRecognitionOperationResult>("Get", request).ConfigureAwait(false);
+            return await GetAsync<TextRecognitionOperationResult>(operation.Url, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Gets the tags associated with an image.
         /// </summary>
         /// <param name="imageStream">The image stream.</param>
+        /// <param name="languageCode">The language code. If omitted, 'en' will be used.</param>
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
         /// <returns>Analysis result with tags.</returns>
-        public async Task<AnalysisResult> GetTagsAsync(Stream imageStream)
+        public Task<AnalysisResult> GetTagsAsync(Stream imageStream, string languageCode = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            string requestUrl = string.Format("{0}/tag?{1}={2}", ServiceHost, _subscriptionKeyName, _subscriptionKey);
-            var request = WebRequest.Create(requestUrl);
-
-            return await this.SendAsync<Stream, AnalysisResult>("POST", imageStream, request).ConfigureAwait(false);
+            return GetTagsCommonAsync(imageStream, languageCode, cancellationToken);
         }
 
         /// <summary>
         /// Gets the tags associated with an image.
         /// </summary>
         /// <param name="imageUrl">The image URL.</param>
+        /// <param name="languageCode">The language code. If omitted, 'en' will be used.</param>
+        /// <param name="cancellationToken">Optional request cancellation token.</param>
         /// <returns>Analysis result with tags.</returns>
-        public async Task<AnalysisResult> GetTagsAsync(string imageUrl)
+        public Task<AnalysisResult> GetTagsAsync(string imageUrl, string languageCode = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            string requestUrl = string.Format("{0}/tag?{1}={2}", ServiceHost, _subscriptionKeyName, _subscriptionKey);
-            var request = WebRequest.Create(requestUrl);
+            var requestBody = new UrlRequest() { url = imageUrl };
 
-            dynamic requestObject = new ExpandoObject();
-            requestObject.url = imageUrl;
+            return GetTagsCommonAsync(requestBody, languageCode, cancellationToken);
+        }
 
-            return await this.SendAsync<ExpandoObject, AnalysisResult>("POST", requestObject, request).ConfigureAwait(false);
+        private async Task<AnalysisResult> GetTagsCommonAsync<T>(T requestBody, string languageCode, CancellationToken cancellationToken)
+        {
+            var requestUrl = new StringBuilder("/tag?").Append(LanguageCodeToQueryParam(languageCode)).ToString();
+
+            return await PostAsync<T, AnalysisResult>(requestUrl, requestBody, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// Strings the array to string.
+        /// Joins the visual features array to a string.
         /// </summary>
         /// <param name="features">String array of feature names.</param>
         /// <returns>The visual features query parameter string.</returns>
-        private string VisualFeaturesToString(string[] features)
+        private string VisualFeaturesToQueryParam(string[] features)
         {
             return (features == null || features.Length == 0)
-                ? ""
+                ? string.Empty
                 : "visualFeatures=" + string.Join(",", features);
         }
 
@@ -472,7 +494,7 @@ namespace Microsoft.ProjectOxford.Vision
         /// <returns>The visual features query parameter string.</returns>
         private string VisualFeaturesToString(IEnumerable<VisualFeature> features)
         {
-            return VisualFeaturesToString(features?.Select(feature => feature.ToString()).ToArray());
+            return VisualFeaturesToQueryParam(features?.Select(feature => feature.ToString()).ToArray());
         }
 
         /// <summary>
@@ -480,354 +502,21 @@ namespace Microsoft.ProjectOxford.Vision
         /// </summary>
         /// <param name="features">String array of feature names.</param>
         /// <returns>The visual features query parameter string.</returns>
-        private string DetailsToString(IEnumerable<string> details)
+        private string DetailsToQueryParam(IEnumerable<string> details)
         {
             return (details == null || details.Count() == 0)
-                ? ""
+                ? string.Empty
                 : "details=" + string.Join(",", details);
         }
 
-        #region the json client
-
         /// <summary>
-        /// Gets the asynchronous.
+        /// Convert to optional languageCode argument to a query parameter
         /// </summary>
-        /// <typeparam name="TResponse">The type of the response.</typeparam>
-        /// <param name="method">The method.</param>
-        /// <param name="request">The request.</param>
-        /// <param name="setHeadersCallback">The set headers callback.</param>
-        /// <returns>
-        /// The response object.
-        /// </returns>
-        private async Task<TResponse> GetAsync<TResponse>(string method, WebRequest request, Action<WebRequest> setHeadersCallback = null)
+        /// <param name="languageCode">Optional language code.</param>
+        /// <returns>The language query parameter string.</returns>
+        private string LanguageCodeToQueryParam(string languageCode)
         {
-            if (request == null)
-            {
-                new ArgumentNullException("request");
-            }
-
-            try
-            {
-                request.Method = method;
-                if (null == setHeadersCallback)
-                {
-                    this.SetCommonHeaders(request);
-                }
-                else
-                {
-                    setHeadersCallback(request);
-                }
-
-                var getResponseAsync = Task.Factory.FromAsync<WebResponse>(
-                    request.BeginGetResponse,
-                    request.EndGetResponse,
-                    null);
-
-                await Task.WhenAny(getResponseAsync, Task.Delay(DefaultTimeout)).ConfigureAwait(false);
-
-                //Abort request if timeout has expired
-                if (!getResponseAsync.IsCompleted)
-                {
-                    request.Abort();
-                }
-
-                return this.ProcessAsyncResponse<TResponse>(getResponseAsync.Result as HttpWebResponse);
-            }
-            catch (AggregateException ae)
-            {
-                ae.Handle(e =>
-                {
-                    this.HandleException(e);
-                    return true;
-                });
-                return default(TResponse);
-            }
-            catch (Exception e)
-            {
-                this.HandleException(e);
-                return default(TResponse);
-            }
+            return string.IsNullOrEmpty(languageCode) ? string.Empty : "language=" + languageCode;
         }
-
-        /// <summary>
-        /// Sends the asynchronous.
-        /// </summary>
-        /// <typeparam name="TRequest">The type of the request.</typeparam>
-        /// <typeparam name="TResponse">The type of the response.</typeparam>
-        /// <param name="method">The method.</param>
-        /// <param name="requestBody">The request body.</param>
-        /// <param name="request">The request.</param>
-        /// <param name="setHeadersCallback">The set headers callback.</param>
-        /// <returns>The response object.</returns>
-        /// <exception cref="System.ArgumentNullException">request</exception>
-        private async Task<TResponse> SendAsync<TRequest, TResponse>(string method, TRequest requestBody, WebRequest request, Action<WebRequest> setHeadersCallback = null)
-        {
-            try
-            {
-                if (request == null)
-                {
-                    throw new ArgumentNullException("request");
-                }
-
-                request.Method = method;
-                if (null == setHeadersCallback)
-                {
-                    this.SetCommonHeaders(request);
-                }
-                else
-                {
-                    setHeadersCallback(request);
-                }
-
-                if (requestBody is Stream)
-                {
-                    request.ContentType = "application/octet-stream";
-                }
-
-                var asyncState = new WebRequestAsyncState()
-                {
-                    RequestBytes = this.SerializeRequestBody(requestBody),
-                    WebRequest = (HttpWebRequest)request,
-                };
-
-                var continueRequestAsyncState = await Task.Factory.FromAsync<Stream>(
-                                                    asyncState.WebRequest.BeginGetRequestStream,
-                                                    asyncState.WebRequest.EndGetRequestStream,
-                                                    asyncState,
-                                                    TaskCreationOptions.None).ContinueWith<WebRequestAsyncState>(
-                                                       task =>
-                                                       {
-                                                           var requestAsyncState = (WebRequestAsyncState)task.AsyncState;
-                                                           if (requestBody != null)
-                                                           {
-                                                               using (var requestStream = task.Result)
-                                                               {
-                                                                   if (requestBody is Stream)
-                                                                   {
-                                                                       (requestBody as Stream).CopyTo(requestStream);
-                                                                   }
-                                                                   else
-                                                                   {
-                                                                       requestStream.Write(requestAsyncState.RequestBytes, 0, requestAsyncState.RequestBytes.Length);
-                                                                   }
-                                                               }
-                                                           }
-
-                                                           return requestAsyncState;
-                                                       }).ConfigureAwait(false);
-
-                var continueWebRequest = continueRequestAsyncState.WebRequest;
-                var getResponseAsync = Task.Factory.FromAsync<WebResponse>(
-                    continueWebRequest.BeginGetResponse,
-                    continueWebRequest.EndGetResponse,
-                    continueRequestAsyncState);
-
-                await Task.WhenAny(getResponseAsync, Task.Delay(DefaultTimeout)).ConfigureAwait(false);
-
-                //Abort request if timeout has expired
-                if (!getResponseAsync.IsCompleted)
-                {
-                    request.Abort();
-                }
-
-                return this.ProcessAsyncResponse<TResponse>(getResponseAsync.Result as HttpWebResponse);
-            }
-            catch (AggregateException ae)
-            {
-                ae.Handle(e =>
-                {
-                    this.HandleException(e);
-                    return true;
-                });
-                return default(TResponse);
-            }
-            catch (Exception e)
-            {
-                this.HandleException(e);
-                return default(TResponse);
-            }
-        }
-
-        /// <summary>
-        /// Processes the asynchronous response.
-        /// </summary>
-        /// <typeparam name="T">Type of response.</typeparam>
-        /// <param name="webResponse">The web response.</param>
-        /// <returns>The response.</returns>
-        private T ProcessAsyncResponse<T>(HttpWebResponse webResponse)
-        {
-            using (webResponse)
-            {
-                if (webResponse.StatusCode == HttpStatusCode.OK ||
-                    webResponse.StatusCode == HttpStatusCode.Accepted ||
-                    webResponse.StatusCode == HttpStatusCode.Created)
-                {
-                    if (webResponse.ContentLength != 0)
-                    {
-                        using (var stream = webResponse.GetResponseStream())
-                        {
-                            if (stream != null)
-                            {
-                                if (webResponse.ContentType == "image/jpeg" ||
-                                    webResponse.ContentType == "image/png")
-                                {
-                                    using (MemoryStream ms = new MemoryStream())
-                                    {
-                                        stream.CopyTo(ms);
-                                        return (T)(object)ms.ToArray();
-                                    }
-                                }
-                                else
-                                {
-                                    string message = string.Empty;
-                                    using (StreamReader reader = new StreamReader(stream))
-                                    {
-                                        message = reader.ReadToEnd();
-                                    }
-
-                                    JsonSerializerSettings settings = new JsonSerializerSettings();
-                                    settings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
-                                    settings.NullValueHandling = NullValueHandling.Ignore;
-                                    settings.ContractResolver = this._defaultResolver;
-
-                                    return JsonConvert.DeserializeObject<T>(message, settings);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (webResponse.Headers.AllKeys.Contains("Operation-Location"))
-                        {
-                            string message = string.Format("{{Url: \"{0}\"}}", webResponse.Headers["Operation-Location"]);
-
-                            JsonSerializerSettings settings = new JsonSerializerSettings();
-                            settings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
-                            settings.NullValueHandling = NullValueHandling.Ignore;
-                            settings.ContractResolver = this._defaultResolver;
-
-                            return JsonConvert.DeserializeObject<T>(message, settings);
-                        }
-                    }
-                }
-            }
-
-            return default(T);
-        }
-
-        /// <summary>
-        /// Set request content type.
-        /// </summary>
-        /// <param name="request">Web request object.</param>
-        private void SetCommonHeaders(WebRequest request)
-        {
-            request.ContentType = "application/json";
-            request.Headers[HttpRequestHeader.Authorization] = "Basic ZTkwNTE2ZmQ4NThlNDVjMmFhNDMzMjRlZjBlOThlN2E=";
-        }
-
-        /// <summary>
-        /// Serialize the request body to byte array.
-        /// </summary>
-        /// <typeparam name="T">Type of request object.</typeparam>
-        /// <param name="requestBody">Strong typed request object.</param>
-        /// <returns>Byte array.</returns>
-        private byte[] SerializeRequestBody<T>(T requestBody)
-        {
-            if (requestBody == null || requestBody is Stream)
-            {
-                return null;
-            }
-            else
-            {
-                JsonSerializerSettings settings = new JsonSerializerSettings();
-                settings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
-                settings.ContractResolver = this._defaultResolver;
-
-                return System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(requestBody, settings));
-            }
-        }
-
-        /// <summary>
-        /// Process the exception happened on rest call.
-        /// </summary>
-        /// <param name="exception">Exception object.</param>
-        private void HandleException(Exception exception)
-        {
-            WebException webException = exception as WebException;
-            if (webException != null && webException.Response != null)
-            {
-                if (webException.Response.ContentType.ToLower().Contains("application/json"))
-                {
-                    Stream stream = null;
-
-                    try
-                    {
-                        stream = webException.Response.GetResponseStream();
-                        if (stream != null)
-                        {
-                            string errorObjectString;
-                            using (StreamReader reader = new StreamReader(stream))
-                            {
-                                stream = null;
-                                errorObjectString = reader.ReadToEnd();
-                            }
-
-                            ClientError errorCollection = JsonConvert.DeserializeObject<ClientError>(errorObjectString);
-
-                            // Some error messages use a different format, add the logic to handle this issue.
-                            if (errorCollection.Code == null && errorCollection.Message == null)
-                            {
-                                var errorType = new { Error = new ClientError() };
-                                var errorObj = JsonConvert.DeserializeAnonymousType(errorObjectString, errorType);
-                                errorCollection = errorObj.Error;
-                            }
-
-                            if (errorCollection != null)
-                            {
-                                throw new ClientException
-                                {
-                                    Error = errorCollection,
-                                };
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        if (stream != null)
-                        {
-                            stream.Dispose();
-                        }
-                    }
-                }
-            }
-
-            throw exception;
-        }
-
-        /// <summary>
-        /// This class is used to pass on "state" between each Begin/End call
-        /// It also carries the user supplied "state" object all the way till
-        /// the end where is then hands off the state object to the
-        /// WebRequestCallbackState object.
-        /// </summary>
-        internal class WebRequestAsyncState
-        {
-            /// <summary>
-            /// Gets or sets request bytes of the request parameter for http post.
-            /// </summary>
-            public byte[] RequestBytes { get; set; }
-
-            /// <summary>
-            /// Gets or sets the HttpWebRequest object.
-            /// </summary>
-            public HttpWebRequest WebRequest { get; set; }
-
-            /// <summary>
-            /// Gets or sets the request state object.
-            /// </summary>
-            public object State { get; set; }
-        }
-
-        #endregion
     }
 }

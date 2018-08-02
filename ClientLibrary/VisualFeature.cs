@@ -68,6 +68,11 @@ namespace Microsoft.ProjectOxford.Vision
         /// <summary>
         /// Image description.
         /// </summary>
-        Description
+        Description,
+
+        /// <summary>
+        /// Objects and their bounding boxes.
+        /// </summary>
+        Objects,
     }
 }
