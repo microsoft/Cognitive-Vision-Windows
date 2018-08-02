@@ -136,10 +136,10 @@ namespace VisionAPI_WPF_Samples
             var visualFeatures = new List<VisualFeatureTypes>();
             foreach (var child in _visualFeatures.Children)
             {
-                var control = child as CheckBox;
-                if (control?.IsChecked == true)
+                var control = (CheckBox)child;
+                if (control.IsChecked == true)
                 {
-                    visualFeatures.Add((VisualFeatureTypes)Enum.Parse(typeof(VisualFeatureTypes), control?.Content?.ToString()));
+                    visualFeatures.Add((VisualFeatureTypes)Enum.Parse(typeof(VisualFeatureTypes), control.Content?.ToString()));
                 }
             }
             return visualFeatures.Count > 0 ? visualFeatures.ToArray() : null;
