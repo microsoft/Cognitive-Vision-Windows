@@ -22,7 +22,7 @@
                 <Button x:Name="_loadModelsButton" Click="LoadModelsButton_Click" Content="Load available models" Margin="5,5,0,0" Width="200" HorizontalAlignment="Left"></Button>
             </StackPanel>
             <StackPanel Orientation="Vertical" x:Name="_stepTwoPanel" Visibility="Collapsed">
-                <TextBlock Margin="5, 5, 0, 0">Choose a domain model, then click either [Load Image] or paste in an image url and click [Analyze]</TextBlock>
+                <TextBlock Margin="5, 5, 0, 0">Choose a domain model, then click either [Load Image] or paste in an image URL and click [Analyze]</TextBlock>
                 <StackPanel Orientation="Horizontal" Margin="5, 10, 0, 5">
                     <TextBlock>Domain Model:</TextBlock>
                     <ComboBox x:Name="_domainModelComboBox" Width="140" SelectedIndex="0" Margin="5, 0">
@@ -33,9 +33,16 @@
                         </ComboBox.ItemTemplate>
                     </ComboBox>
                 </StackPanel>
+                <ComboBox x:Name="_language" Margin="5, 5, 0, 5" Width="80" HorizontalAlignment="Left" HorizontalContentAlignment="Left" SelectedIndex="0">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding LongName}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
                 <Button Click="LoadImageButton_Click" Margin="5, 5, 0, 0" Width="80" HorizontalAlignment="Left">Load Image</Button>
                 <StackPanel Orientation="Horizontal" Margin="5, 5, 0, 0">
-                    <TextBox x:Name="_urlTextBox" Width="361" Margin="0, 5, 0, 0">https://oxfordportal.blob.core.windows.net/vision/Analysis/1-1.jpg</TextBox>
+                    <TextBox x:Name="_urlTextBox" Width="361" Margin="0, 5, 0, 0">https://raw.githubusercontent.com/Microsoft/Cognitive-Vision-Windows/master/Sample-WPF/Assets/printed.jpg</TextBox>
                     <Button Click="SubmitUriButton_Click" Margin="5, 5, 0, 0">Analyze</Button>
                 </StackPanel>
             </StackPanel>
