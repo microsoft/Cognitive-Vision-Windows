@@ -1,15 +1,15 @@
-﻿// 
+﻿//
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license.
-// 
+//
 // Microsoft Cognitive Services (formerly Project Oxford): https://www.microsoft.com/cognitive-services
-// 
+//
 // Microsoft Cognitive Services (formerly Project Oxford) GitHub:
 // https://github.com/Microsoft/Cognitive-Vision-Windows
-// 
+//
 // Copyright (c) Microsoft Corporation
 // All rights reserved.
-// 
+//
 // MIT License:
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -18,10 +18,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED ""AS IS"", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -29,7 +29,7 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 
 using System;
 using System.IO;
@@ -38,10 +38,10 @@ using System.Windows;
 
 // -----------------------------------------------------------------------
 // KEY SAMPLE CODE STARTS HERE
-// Use the following namesapce for VisionServiceClient
+// Use the following namespace for ComputerVisionClient.
 // -----------------------------------------------------------------------
-using Microsoft.ProjectOxford.Vision;
-using Microsoft.ProjectOxford.Vision.Contract;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 // -----------------------------------------------------------------------
 // KEY SAMPLE CODE ENDS HERE
 // -----------------------------------------------------------------------
@@ -49,7 +49,7 @@ using Microsoft.ProjectOxford.Vision.Contract;
 namespace VisionAPI_WPF_Samples
 {
     /// <summary>
-    /// Interaction logic for AnalyzeInDomainPage.xaml
+    /// Interaction logic for AnalyzeInDomainPage.xaml.
     /// </summary>
     public partial class AnalyzeInDomainPage : ImageScenarioPage
     {
@@ -58,62 +58,32 @@ namespace VisionAPI_WPF_Samples
             InitializeComponent();
             this.PreviewImage = _imagePreview;
             this.URLTextBox = _urlTextBox;
+            this._language.ItemsSource = RecognizeLanguage.SupportedForAnalysis;
         }
 
         /// <summary>
-        /// Get a list of available domain models
+        /// Get a list of available domain models.
         /// </summary>
-        /// <returns></returns>
-        private async Task<ModelResult> GetAvailableDomainModels()
+        /// <returns>Awaitable list of domains available for analysis.</returns>
+        private async Task<ListModelsResult> GetAvailableDomainModelsAsync()
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
             // -----------------------------------------------------------------------
 
             //
-            // Create Project Oxford Vision API Service client
+            // Create Cognitive Services Vision API Service client.
             //
-            VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey, "https://westcentralus.api.cognitive.microsoft.com/vision/v1.0");
-            Log("VisionServiceClient is created");
-
-            //
-            // Analyze the url against the given domain
-            //
-            Log("Calling VisionServiceClient.ListModelsAsync()...");
-            ModelResult modelResult = await VisionServiceClient.ListModelsAsync();
-            return modelResult;
-
-            // -----------------------------------------------------------------------
-            // KEY SAMPLE CODE ENDS HERE
-            // -----------------------------------------------------------------------
-        }
-
-        /// <summary>
-        /// Uploads the image to Project Oxford and performs analysis against a given domain
-        /// </summary>
-        /// <param name="imageFilePath">The image file path.</param>
-        /// <param name="domainModel">The domain model to analyze against</param>
-        /// <returns></returns>
-        private async Task<AnalysisInDomainResult> UploadAndAnalyzeInDomainImage(string imageFilePath, Model domainModel)
-        {
-            // -----------------------------------------------------------------------
-            // KEY SAMPLE CODE STARTS HERE
-            // -----------------------------------------------------------------------
-
-            //
-            // Create Project Oxford Vision API Service client
-            //
-            VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey);
-            Log("VisionServiceClient is created");
-
-            using (Stream imageFileStream = File.OpenRead(imageFilePath))
+            using (var client = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
             {
+                Log("ComputerVisionClient is created");
+
                 //
-                // Analyze the image for the given domain
+                // Analyze the URL against the given domain.
                 //
-                Log("Calling VisionServiceClient.AnalyzeImageInDomainAsync()...");
-                AnalysisInDomainResult analysisResult = await VisionServiceClient.AnalyzeImageInDomainAsync(imageFileStream, domainModel);
-                return analysisResult;
+                Log("Calling ComputerVisionClient.ListModelsAsync()...");
+                ListModelsResult modelResult = await client.ListModelsAsync();
+                return modelResult;
             }
 
             // -----------------------------------------------------------------------
@@ -122,73 +92,110 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Sends a url to Project Oxford and performs analysis against a given domain
+        /// Uploads the image to Cognitive Services and performs analysis against a given domain.
         /// </summary>
-        /// <param name="imageUrl">The url of the image to analyze</param>
-        /// <param name="domainModel">The domain model to analyze against</param>
-        /// <returns></returns>
-        private async Task<AnalysisInDomainResult> AnalyzeInDomainUrl(string imageUrl, Model domainModel)
+        /// <param name="imageFilePath">The image file path.</param>
+        /// <param name="domainModel">The domain model for analyzing an image.</param>
+        /// <returns>Awaitable domain-specific analysis result.</returns>
+        private async Task<DomainModelResults> UploadAndAnalyzeInDomainImageAsync(string imageFilePath, ModelDescription domainModel)
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
             // -----------------------------------------------------------------------
 
             //
-            // Create Project Oxford Vision API Service client
+            // Create Cognitive Services Vision API Service client.
             //
-            VisionServiceClient VisionServiceClient = new VisionServiceClient(SubscriptionKey);
-            Log("VisionServiceClient is created");
+            using (var client = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
+            {
+                Log("ComputerVisionClient is created");
 
-            //
-            // Analyze the url against the given domain
-            //
-            Log("Calling VisionServiceClient.AnalyzeImageInDomainAsync()...");
-            AnalysisInDomainResult analysisResult = await VisionServiceClient.AnalyzeImageInDomainAsync(imageUrl, domainModel);
-            return analysisResult;
+                using (Stream imageFileStream = File.OpenRead(imageFilePath))
+                {
+                    //
+                    // Analyze the image for the given domain.
+                    //
+                    Log("Calling ComputerVisionClient.AnalyzeImageByDomainInStreamAsync()...");
+                    string language = ((RecognizeLanguage)_language.SelectedItem).ShortCode;
+                    DomainModelResults analysisResult = await client.AnalyzeImageByDomainInStreamAsync(domainModel.Name, imageFileStream, language);
+                    return analysisResult;
+                }
+            }
 
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE ENDS HERE
             // -----------------------------------------------------------------------
         }
 
-        protected override async Task DoWork(Uri imageUri, bool upload)
+        /// <summary>
+        /// Sends a URL to Cognitive Services and performs analysis against a given domain.
+        /// </summary>
+        /// <param name="imageUrl">The URL of the image to analyze.</param>
+        /// <param name="domainModel">The domain model to analyze against.</param>
+        /// <returns>Awaitable domain-specific analysis result.</returns>
+        private async Task<DomainModelResults> AnalyzeInDomainUrlAsync(string imageUrl, ModelDescription domainModel)
+        {
+            // -----------------------------------------------------------------------
+            // KEY SAMPLE CODE STARTS HERE
+            // -----------------------------------------------------------------------
+
+            //
+            // Create Cognitive Services Vision API Service client.
+            //
+            using (var client = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
+            {
+                Log("ComputerVisionClient is created");
+
+                //
+                // Analyze the URL against the given domain.
+                //
+                Log("Calling ComputerVisionClient.AnalyzeImageByDomainAsync()...");
+                string language = (_language.SelectedItem as RecognizeLanguage).ShortCode;
+                DomainModelResults analysisResult = await client.AnalyzeImageByDomainAsync(domainModel.Name, imageUrl, language);
+                return analysisResult;
+            }
+            // -----------------------------------------------------------------------
+            // KEY SAMPLE CODE ENDS HERE
+            // -----------------------------------------------------------------------
+        }
+
+        protected override async Task DoWorkAsync(Uri imageUri, bool upload)
         {
             _status.Text = "Analyzing...";
 
-            Model domainModel = _domainModelComboBox.SelectedItem as Model;
+            ModelDescription domainModel = _domainModelComboBox.SelectedItem as ModelDescription;
 
             //
-            // Either upload an image, or supply a url
+            // Either upload an image, or supply a URL.
             //
-            AnalysisInDomainResult analysisInDomainResult;
+            DomainModelResults analysisInDomainResult;
             if (upload)
             {
-                analysisInDomainResult = await UploadAndAnalyzeInDomainImage(imageUri.LocalPath, domainModel);
+                analysisInDomainResult = await UploadAndAnalyzeInDomainImageAsync(imageUri.LocalPath, domainModel);
             }
             else
             {
-                analysisInDomainResult = await AnalyzeInDomainUrl(imageUri.AbsoluteUri, domainModel);
+                analysisInDomainResult = await AnalyzeInDomainUrlAsync(imageUri.AbsoluteUri, domainModel);
             }
             _status.Text = "Analyzing Done";
 
             //
-            // Log analysis result in the log window
+            // Log analysis result in the log window.
             //
             Log("");
             Log("Analysis In Domain Result:");
             LogAnalysisInDomainResult(analysisInDomainResult);
-
         }
 
         private async void LoadModelsButton_Click(object sender, RoutedEventArgs e)
         {
             _status.Text = "Loading models...";
-            
+
             //
-            // Get the avaialable models
+            // Get the available models.
             //
-            var modelResult = await GetAvailableDomainModels();
-            _domainModelComboBox.ItemsSource = modelResult.Models;
+            var modelResult = await GetAvailableDomainModelsAsync();
+            _domainModelComboBox.ItemsSource = modelResult.ModelsProperty;
 
             _status.Text = "Loaded models";
 

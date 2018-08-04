@@ -38,12 +38,13 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using Microsoft.ProjectOxford.Vision.Contract;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 
 namespace VisionAPI_WPF_Samples
 {
     /// <summary>
-    /// Common UI code for each Image based scenario
+    /// Common UI code for each Image based scenario.
     /// </summary>
     public abstract class ImageScenarioPage : Page
     {
@@ -55,30 +56,37 @@ namespace VisionAPI_WPF_Samples
 
         protected TextBox URLTextBox { get; set; }
 
-        protected string SubscriptionKey
+        protected ApiKeyServiceClientCredentials Credentials
         {
             get
             {
-                return mainWindow.ScenarioControl.SubscriptionKey;
+                return new ApiKeyServiceClientCredentials(mainWindow.ScenarioControl.SubscriptionKey);
+            }
+        }
+
+        protected string Endpoint
+        {
+            get
+            {
+                return mainWindow.ScenarioControl.SubscriptionEndpoint;
             }
         }
 
         /// <summary>
-        /// Perform the work for this scenario
+        /// Perform the work for this scenario.
         /// </summary>
-        /// <param name="imageUri">The URI of the image to run against the scenario</param>
-        /// <param name="upload">Upload the image to Project Oxford if [true]; submit the Uri as a remote url if [false];</param>
-        /// <returns></returns>
-        protected abstract Task DoWork(Uri imageUri, bool upload);
+        /// <param name="imageUri">The URI of the image to run against the scenario.</param>
+        /// <param name="upload">Upload the image to Cognitive Services if [true]; submit the Uri as a remote URL if [false].</param>
+        protected abstract Task DoWorkAsync(Uri imageUri, bool upload);
 
-        private async Task ShowPreviewAndDoWork(Uri imageUri, bool upload)
+        private async Task ShowPreviewAndDoWorkAsync(Uri imageUri, bool upload)
         {
             try
             {
-                // Clear the log
+                // Clear the log.
                 mainWindow.ScenarioControl.ClearLog();
 
-                // Show the image on the GUI
+                // Show the image on the GUI.
                 BitmapImage bitmapSource = new BitmapImage();
                 bitmapSource.BeginInit();
                 bitmapSource.CacheOption = BitmapCacheOption.None;
@@ -86,8 +94,8 @@ namespace VisionAPI_WPF_Samples
                 bitmapSource.EndInit();
                 PreviewImage.Source = bitmapSource;
 
-                // do the actual work for the scenaro
-                await DoWork(imageUri, upload);
+                // do the actual work for the scenario.
+                await DoWorkAsync(imageUri, upload);
             }
             catch (Exception exception)
             {
@@ -98,8 +106,10 @@ namespace VisionAPI_WPF_Samples
 
         protected async void LoadImageButton_Click(object sender, RoutedEventArgs e)
         {
-            Microsoft.Win32.OpenFileDialog openDlg = new Microsoft.Win32.OpenFileDialog();
-            openDlg.Filter = "Image Files(*.jpg, *.gif, *.bmp, *.png)|*.jpg;*.jpeg;*.gif;*.bmp;*.png";
+            var openDlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                Filter = "Image Files(*.jpg, *.gif, *.bmp, *.png)|*.jpg;*.jpeg;*.gif;*.bmp;*.png"
+            };
             bool? result = openDlg.ShowDialog(Application.Current.MainWindow);
 
             if (!(bool)result)
@@ -110,29 +120,29 @@ namespace VisionAPI_WPF_Samples
             string imageFilePath = openDlg.FileName;
             Uri fileUri = new Uri(imageFilePath);
 
-            await ShowPreviewAndDoWork(fileUri, true);
+            await ShowPreviewAndDoWorkAsync(fileUri, true);
         }
 
         protected async void SubmitUriButton_Click(object sender, RoutedEventArgs e)
         {
             Uri imageUri = new Uri(URLTextBox.Text);
-            await ShowPreviewAndDoWork(imageUri, false);
+            await ShowPreviewAndDoWorkAsync(imageUri, false);
         }
 
         /// <summary>
-        /// Logs a message to the parent control
+        /// Logs a message to the parent control.
         /// </summary>
-        /// <param name="message">The message</param>
+        /// <param name="message">The message to log.</param>
         internal void Log(string message)
         {
            mainWindow.ScenarioControl.Log(message);
         }
 
         /// <summary>
-        /// Show Analysis Result
+        /// Show Analysis Result.
         /// </summary>
-        /// <param name="result">Analysis Result</param>
-        protected void LogAnalysisResult(AnalysisResult result)
+        /// <param name="result">Analysis result to log.</param>
+        protected void LogAnalysisResult(ImageAnalysis result)
         {
             if (result == null)
             {
@@ -142,12 +152,14 @@ namespace VisionAPI_WPF_Samples
 
             if (result.Metadata != null)
             {
-                Log("Image Format : " + result.Metadata.Format);
-                Log("Image Dimensions : " + result.Metadata.Width + " x " + result.Metadata.Height);
+                Log("Metadata : ");
+                Log("   Image Format : " + result.Metadata.Format);
+                Log("   Image Dimensions : " + result.Metadata.Width + " x " + result.Metadata.Height);
             }
 
             if (result.ImageType != null)
             {
+                Log("Image Type : ");
                 string clipArtType;
                 switch (result.ImageType.ClipArtType)
                 {
@@ -167,7 +179,7 @@ namespace VisionAPI_WPF_Samples
                         clipArtType = "Unknown";
                         break;
                 }
-                Log("Clip Art Type : " + clipArtType);
+                Log("   Clip Art Type : " + clipArtType);
 
                 string lineDrawingType;
                 switch (result.ImageType.LineDrawingType)
@@ -182,19 +194,19 @@ namespace VisionAPI_WPF_Samples
                         lineDrawingType = "Unknown";
                         break;
                 }
-                Log("Line Drawing Type : " + lineDrawingType);
+                Log("   Line Drawing Type : " + lineDrawingType);
             }
-
 
             if (result.Adult != null)
             {
-                Log("Is Adult Content : " + result.Adult.IsAdultContent);
-                Log("Adult Score : " + result.Adult.AdultScore);
-                Log("Is Racy Content : " + result.Adult.IsRacyContent);
-                Log("Racy Score : " + result.Adult.RacyScore);
+                Log("Adult : ");
+                Log("   Is Adult Content : " + result.Adult.IsAdultContent);
+                Log("   Adult Score : " + result.Adult.AdultScore);
+                Log("   Is Racy Content : " + result.Adult.IsRacyContent);
+                Log("   Racy Score : " + result.Adult.RacyScore);
             }
 
-            if (result.Categories != null && result.Categories.Length > 0)
+            if (result.Categories != null && result.Categories.Count > 0)
             {
                 Log("Categories : ");
                 foreach (var category in result.Categories)
@@ -203,7 +215,7 @@ namespace VisionAPI_WPF_Samples
                 }
             }
 
-            if (result.Faces != null && result.Faces.Length > 0)
+            if (result.Faces != null && result.Faces.Count > 0)
             {
                 Log("Faces : ");
                 foreach (var face in result.Faces)
@@ -214,11 +226,12 @@ namespace VisionAPI_WPF_Samples
 
             if (result.Color != null)
             {
-                Log("AccentColor : " + result.Color.AccentColor);
-                Log("Dominant Color Background : " + result.Color.DominantColorBackground);
-                Log("Dominant Color Foreground : " + result.Color.DominantColorForeground);
+                Log("Color : ");
+                Log("   AccentColor : " + result.Color.AccentColor);
+                Log("   Dominant Color Background : " + result.Color.DominantColorBackground);
+                Log("   Dominant Color Foreground : " + result.Color.DominantColorForeground);
 
-                if (result.Color.DominantColors != null && result.Color.DominantColors.Length > 0)
+                if (result.Color.DominantColors != null && result.Color.DominantColors.Count > 0)
                 {
                     string colors = "Dominant Colors : ";
                     foreach (var color in result.Color.DominantColors)
@@ -250,17 +263,16 @@ namespace VisionAPI_WPF_Samples
                 Log("Tags : ");
                 foreach (var tag in result.Tags)
                 {
-                    Log("   Name : " + tag.Name + "; Confidence : " + tag.Confidence + "; Hint : " + tag.Hint);
+                    Log("   Name : " + tag.Name + "; Confidence : " + tag.Confidence + ((string.IsNullOrEmpty(tag.Hint) ? "" : ("; Hint : " + tag.Hint))));
                 }
             }
-
         }
         
         /// <summary>
-        /// Log the result of an analysis in domain result
+        /// Log the result of an analysis in domain result.
         /// </summary>
-        /// <param name="result"></param>
-        protected void LogAnalysisInDomainResult(AnalysisInDomainResult result)
+        /// <param name="result">Domain analysis result to log.</param>
+        protected void LogAnalysisInDomainResult(DomainModelResults result)
         {
             if (result.Metadata != null)
             {
@@ -275,10 +287,42 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
+        /// Show Description Results.
+        /// </summary>
+        /// <param name="result">Description result to log.</param>
+        protected void LogDescriptionResults(ImageDescription result)
+        {
+            ImageAnalysis analysisResult = new ImageAnalysis
+            {
+                Metadata = result.Metadata,
+                Description = new ImageDescriptionDetails
+                {
+                    Captions = result.Captions,
+                    Tags = result.Tags
+                }
+            };
+            LogAnalysisResult(analysisResult);
+        }
+
+        /// <summary>
+        /// Show Tagging Result.
+        /// </summary>
+        /// <param name="result">Tag result to log.</param>
+        protected void LogTagResult(TagResult result)
+        {
+            ImageAnalysis analysisResult = new ImageAnalysis
+            {
+                Metadata = result.Metadata,
+                Tags = result.Tags
+            };
+            LogAnalysisResult(analysisResult);
+        }
+
+        /// <summary>
         /// Log text from the given OCR results object.
         /// </summary>
         /// <param name="results">The OCR results.</param>
-        protected void LogOcrResults(OcrResults results)
+        protected void LogOcrResults(OcrResult results)
         {
             StringBuilder stringBuilder = new StringBuilder();
 
@@ -307,14 +351,14 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Log text from the given HandwritingRecognitionOperationResult object.
+        /// Log text from the given TextOperationResult object.
         /// </summary>
-        /// <param name="results">The HandwritingRecognitionOperationResult.</param>
-        protected void LogHandwritingRecognitionResult(HandwritingRecognitionOperationResult results)
+        /// <param name="results">The TextOperationResult.</param>
+        protected void LogTextRecognitionResult(TextOperationResult results)
         {
             StringBuilder stringBuilder = new StringBuilder();
 
-            if (results != null && results.RecognitionResult != null && results.RecognitionResult.Lines != null && results.RecognitionResult.Lines.Length > 0)
+            if (results != null && results.RecognitionResult != null && results.RecognitionResult.Lines != null && results.RecognitionResult.Lines.Count > 0)
             {
                 stringBuilder.Append("Text: ");
                 stringBuilder.AppendLine();
@@ -340,7 +384,7 @@ namespace VisionAPI_WPF_Samples
                 Log(stringBuilder.ToString());
             }
             
-            if (results.Status == HandwritingRecognitionOperationStatus.Running || results.Status == HandwritingRecognitionOperationStatus.NotStarted)
+            if (results.Status == TextOperationStatusCodes.Running || results.Status == TextOperationStatusCodes.NotStarted)
             {
                 Log(string.Format("Status is {0} after try {1} times", results.Status, MaxRetryTimes));
             }

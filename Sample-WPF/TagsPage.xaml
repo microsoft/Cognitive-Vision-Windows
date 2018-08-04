@@ -17,7 +17,14 @@
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Margin="5, 5, 0, 0" FontWeight="Bold">Generate Tags for an Image</TextBlock>
         <StackPanel Orientation="Vertical" Grid.Row="1" >
-            <TextBlock Margin="5, 5, 0, 0">Please click either [Load Image] or paste in an image url and click [Generate Tags]</TextBlock>
+            <TextBlock Margin="5, 5, 0, 0">Please click either [Load Image] or paste in an image URL and click [Generate Tags]</TextBlock>
+            <ComboBox x:Name="_language" Margin="5, 5, 0, 5" Width="80" HorizontalAlignment="Left" HorizontalContentAlignment="Left" SelectedIndex="0">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding LongName}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
             <Button Click="LoadImageButton_Click" Margin="5, 5, 0, 0" Width="80" HorizontalAlignment="Left">Load Image</Button>
             <StackPanel Orientation="Horizontal" Margin="5, 5, 0, 0">
                 <TextBox x:Name="_urlTextBox" Width="361" Margin="0, 5, 0, 0">https://oxfordportal.blob.core.windows.net/vision/Analysis/11-1.jpg</TextBox>

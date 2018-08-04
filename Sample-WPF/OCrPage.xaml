@@ -17,7 +17,7 @@
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Margin="5, 5, 0, 0" FontWeight="Bold">Recognize Text in an Image (OCR)</TextBlock>
         <StackPanel Orientation="Vertical" Grid.Row="1" >
-            <TextBlock Margin="5, 5, 0, 0" Text="Choose a language to recognize, then click either [Load Image] or paste in an image url and click [Recognize Text]"/>
+            <TextBlock Margin="5, 5, 0, 0" Text="Choose a language to recognize, then click either [Load Image] or paste in an image URL and click [Recognize Text]"/>
             <StackPanel Orientation="Horizontal" Margin="5, 10, 0, 5">
                 <TextBlock>Language to detect: </TextBlock>
                 <ComboBox x:Name="languageComboBox" Width="140" SelectedIndex="0" Margin="5, 0">

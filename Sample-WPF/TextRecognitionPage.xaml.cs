@@ -39,6 +39,7 @@ using System.Threading.Tasks;
 // KEY SAMPLE CODE STARTS HERE
 // Use the following namespace for ComputerVisionClient.
 // -----------------------------------------------------------------------
+using Microsoft.ProjectOxford.Common;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 // -----------------------------------------------------------------------
@@ -48,61 +49,56 @@ using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 namespace VisionAPI_WPF_Samples
 {
     /// <summary>
-    /// Interaction logic for TagsPage.xaml.
+    /// Interaction logic for TextRecognitionPage.xaml.
     /// </summary>
-    public partial class TagsPage : ImageScenarioPage
+    public partial class TextRecognitionPage : ImageScenarioPage
     {
-        public TagsPage()
+        public TextRecognitionPage()
         {
             InitializeComponent();
             this.PreviewImage = _imagePreview;
             this.URLTextBox = _urlTextBox;
-            this._language.ItemsSource = RecognizeLanguage.SupportedForTagging;
         }
 
         /// <summary>
-        /// Uploads the image to Cognitive Services and generates tags.
+        /// Gets the TextRecognitionMode value from the UI.
+        /// </summary>
+        /// <returns>TextRecognitionMode enumerated type value.</returns>
+        private TextRecognitionMode RecognitionMode => (TextRecognitionMode)Enum.Parse(typeof(TextRecognitionMode), _mode.Text);
+
+        /// <summary>
+        /// Uploads the image to Cognitive Services and performs Text Recognition.
         /// </summary>
         /// <param name="imageFilePath">The image file path.</param>
-        /// <returns>Awaitable tagging result.</returns>
-        private async Task<TagResult> UploadAndGetTagsForImageAsync(string imageFilePath)
+        /// <returns>Awaitable OCR result.</returns>
+        private async Task<TextOperationResult> UploadAndRecognizeImageAsync(string imageFilePath)
         {
-            // -----------------------------------------------------------------------
-            // KEY SAMPLE CODE STARTS HERE
-            // -----------------------------------------------------------------------
-
-            //
-            // Create Cognitive Services Vision API Service client.
-            //
-            using (var client = new ComputerVisionClient(Credentials) { Endpoint = Endpoint })
             using (Stream imageFileStream = File.OpenRead(imageFilePath))
             {
-                Log("ComputerVisionClient is created");
-
-                //
-                // Upload and image and generate tags.
-                //
-                Log("Calling ComputerVisionClient.TagImageInStreamAsync()...");
-                string language = (_language.SelectedItem as RecognizeLanguage).ShortCode;
-                TagResult analysisResult = await client.TagImageInStreamAsync(imageFileStream, language);
-                return analysisResult;
+                return await RecognizeAsync(
+                    async (ComputerVisionClient client) => await client.RecognizeTextInStreamAsync(imageFileStream, RecognitionMode),
+                    headers => headers.OperationLocation);
             }
-
-            // -----------------------------------------------------------------------
-            // KEY SAMPLE CODE ENDS HERE
-            // -----------------------------------------------------------------------
         }
 
         /// <summary>
-        /// Sends a URL to Cognitive Services and generates tags for it.
+        /// Sends a URL to Cognitive Services and performs Text Recognition.
         /// </summary>
-        /// <param name="imageUrl">The URL of the image for which to generate tags.</param>
-        /// <returns>Awaitable tagging result.</returns>
-        private async Task<TagResult> GenerateTagsForUrlAsync(string imageUrl)
+        /// <param name="imageUrl">The image URL on which to perform recognition</param>
+        /// <returns>Awaitable OCR result.</returns>
+        private async Task<TextOperationResult> RecognizeUrlAsync(string imageUrl)
+        {
+            return await RecognizeAsync(
+                async (ComputerVisionClient client) => await client.RecognizeTextAsync(imageUrl, RecognitionMode),
+                headers => headers.OperationLocation);
+        }
+
+        private async Task<TextOperationResult> RecognizeAsync<T>(Func<ComputerVisionClient, Task<T>> GetHeadersAsyncFunc, Func<T, string> GetOperationUrlFunc) where T : new()
         {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
             // -----------------------------------------------------------------------
+            var result = default(TextOperationResult);
 
             //
             // Create Cognitive Services Vision API Service client.
@@ -111,13 +107,38 @@ namespace VisionAPI_WPF_Samples
             {
                 Log("ComputerVisionClient is created");
 
-                //
-                // Generate tags for the given URL.
-                //
-                Log("Calling ComputerVisionClient.TagImageAsync()...");
-                string language = (_language.SelectedItem as RecognizeLanguage).ShortCode;
-                TagResult analysisResult = await client.TagImageAsync(imageUrl, language);
-                return analysisResult;
+                try
+                {
+                    Log("Calling ComputerVisionClient.RecognizeTextAsync()...");
+
+                    T recognizeHeaders = await GetHeadersAsyncFunc(client);
+                    string operationUrl = GetOperationUrlFunc(recognizeHeaders);
+                    string operationId = operationUrl.Substring(operationUrl.LastIndexOf('/') + 1);
+
+                    Log("Calling ComputerVisionClient.GetTextOperationResultAsync()...");
+                    result = await client.GetTextOperationResultAsync(operationId);
+
+                    for (int attempt = 1; attempt <= MaxRetryTimes; attempt++)
+                    {
+                        if (result.Status == TextOperationStatusCodes.Failed || result.Status == TextOperationStatusCodes.Succeeded)
+                        {
+                            break;
+                        }
+
+                        Log(string.Format("Server status: {0}, wait {1} seconds...", result.Status, QueryWaitTimeInSecond));
+                        await Task.Delay(QueryWaitTimeInSecond);
+
+                        Log("Calling ComputerVisionClient.GetTextOperationResultAsync()...");
+                        result = await client.GetTextOperationResultAsync(operationId);
+                    }
+
+                }
+                catch (ClientException ex)
+                {
+                    result = new TextOperationResult() { Status = TextOperationStatusCodes.Failed };
+                    Log(ex.Error.Message);
+                }
+                return result;
             }
 
             // -----------------------------------------------------------------------
@@ -132,28 +153,27 @@ namespace VisionAPI_WPF_Samples
         /// <param name="upload">Upload the image to Cognitive Services if [true]; submit the Uri as a remote URL if [false].</param>
         protected override async Task DoWorkAsync(Uri imageUri, bool upload)
         {
-            _status.Text = "Generating tags...";
+            _status.Text = "Performing text recognition...";
 
             //
             // Either upload an image, or supply a URL.
             //
-            TagResult tagResult;
+            TextOperationResult result;
             if (upload)
             {
-                tagResult = await UploadAndGetTagsForImageAsync(imageUri.LocalPath);
+                result = await UploadAndRecognizeImageAsync(imageUri.LocalPath);
             }
             else
             {
-                tagResult = await GenerateTagsForUrlAsync(imageUri.AbsoluteUri);
+                result = await RecognizeUrlAsync(imageUri.AbsoluteUri);
             }
-            _status.Text = "Done";
+            _status.Text = "Text recognition finished!";
 
             //
             // Log analysis result in the log window.
             //
-            Log("");
-            Log("Get Tags Result:");
-            LogTagResult(tagResult);
+            LogTextRecognitionResult(result);
+            Log("Text recognition finished!");
         }
     }
 }
