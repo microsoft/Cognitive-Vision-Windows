@@ -17,7 +17,7 @@
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Margin="5, 5, 0, 0" FontWeight="Bold">Generate a thumbnail for an image</TextBlock>
         <StackPanel Orientation="Vertical" Grid.Row="1" >
-            <TextBlock Margin="5, 5, 0, 0" Text="Set thumbnail parameters, then click either [Load Image] or paste in an image url and click [Generate Thumbnail]"/>
+            <TextBlock Margin="5, 5, 0, 0" Text="Set thumbnail parameters, then click either [Load Image] or paste in an image URL and click [Generate Thumbnail]"/>
 
 
             <Grid Margin="5, 10, 0, 5">
