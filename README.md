@@ -8,7 +8,7 @@ This repo contains the Windows client library & sample for the Microsoft Compute
 ## The Client Library
 The client library is a thin C\# client wrapper for the Computer Vision API.
 
-The easiest way to use this client library is to get microsoft.projectoxford.vision package from [nuget](<http://nuget.org>). Please go to [Vision API Package in nuget](https://www.nuget.org/packages/Microsoft.ProjectOxford.Vision/) for more details.
+The easiest way to use this client library is to get microsoft.projectoxford.vision package from [nuget](<http://nuget.org>). Please go to [Vision API Package in nuget](https://www.nuget.org/packages/Microsoft.Azure.CognitiveServices.Vision.ComputerVision/) for more details.
 
 ## The Sample
 This sample is a Windows WPF application to demonstrate the use of the Computer Vision API.
