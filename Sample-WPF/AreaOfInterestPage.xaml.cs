@@ -62,13 +62,10 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Uploads the image to Cognitive Services and generates a thumbnail.
+        /// Uploads the image to Cognitive Services and generates a bounding rectangle representing the area of interest.
         /// </summary>
         /// <param name="imageFilePath">The image file path.</param>
-        /// <param name="width">Width of the thumbnail. It must be between 1 and 1024. Recommended minimum of 50.</param>
-        /// <param name="height">Height of the thumbnail. It must be between 1 and 1024. Recommended minimum of 50.</param>
-        /// <param name="smartCropping">Boolean flag for enabling smart cropping.</param>
-        /// <returns>Awaitable stream containing the image thumbnail.</returns>
+        /// <returns>Awaitable AreaOfInterest result.</returns>
         private async Task<AreaOfInterestResult> UploadAndGenerateImageAreaOfInterestAsync(string imageFilePath)
         {
             // -----------------------------------------------------------------------
@@ -85,7 +82,7 @@ namespace VisionAPI_WPF_Samples
                 using (Stream imageFileStream = File.OpenRead(imageFilePath))
                 {
                     //
-                    // Upload an image and generate a thumbnail.
+                    // Upload an image and generate the area of interest.
                     //
                     Log("Calling ComputerVisionClient.GetAreaOfInterestInStreamAsync()...");
                     return await client.GetAreaOfInterestInStreamAsync(imageFileStream);
@@ -98,13 +95,10 @@ namespace VisionAPI_WPF_Samples
         }
 
         /// <summary>
-        /// Sends a URL to Cognitive Services and generates a thumbnail.
+        /// Sends a URL to Cognitive Services and generates a bounding rectangle representing the area of interest.
         /// </summary>
-        /// <param name="imageUrl">The URL of the image for which to generate a thumbnail.</param>
-        /// <param name="width">Width of the thumbnail. It must be between 1 and 1024. Recommended minimum of 50.</param>
-        /// <param name="height">Height of the thumbnail. It must be between 1 and 1024. Recommended minimum of 50.</param>
-        /// <param name="smartCropping">Boolean flag for enabling smart cropping.</param>
-        /// <returns>Awaitable stream containing the image thumbnail.</returns>
+        /// <param name="imageUrl">The URL of the image for which to generate the area of interest.</param>
+        /// <returns>Awaitable AreaOfInterest result.</returns>
         private async Task<AreaOfInterestResult> GenerateImageAreaOfInterestAsync(string imageUrl)
         {
             // -----------------------------------------------------------------------
@@ -119,7 +113,7 @@ namespace VisionAPI_WPF_Samples
                 Log("ComputerVisionClient is created");
 
                 //
-                // Generate a thumbnail for the given URL.
+                // Generate the area of interest for the given URL.
                 //
                 Log("Calling ComputerVisionClient.GetAreaOfInterestAsync()...");
                return await client.GetAreaOfInterestAsync(imageUrl);

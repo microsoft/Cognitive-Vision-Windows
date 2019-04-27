@@ -202,9 +202,9 @@ namespace VisionAPI_WPF_Samples
             {
                 Log("Adult : ");
                 Log(Invariant($"   Is Adult Content : {result.Adult.IsAdultContent}"));
-                Log(Invariant($"   Adult Score      : {result.Adult.AdultScore}"));
-                Log(Invariant($"   Is Racy Content  : {result.Adult.IsRacyContent}"));
-                Log(Invariant($"   Racy Score       : {result.Adult.RacyScore}"));
+                Log(Invariant($"   Adult Score : {result.Adult.AdultScore}"));
+                Log(Invariant($"   Is Racy Content : {result.Adult.IsRacyContent}"));
+                Log(Invariant($"   Racy Score : {result.Adult.RacyScore}"));
             }
 
             if (result.Brands != null)
