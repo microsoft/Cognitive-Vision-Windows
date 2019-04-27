@@ -32,6 +32,7 @@
 // 
 
 
+using static System.FormattableString;
 using System;
 using System.Text;
 using System.Threading.Tasks;
@@ -48,7 +49,7 @@ namespace VisionAPI_WPF_Samples
     /// </summary>
     public abstract class ImageScenarioPage : Page
     {
-        private MainWindow mainWindow => ((MainWindow)Application.Current.MainWindow);
+        private MainWindow MainWindow => ((MainWindow)Application.Current.MainWindow);
         protected static readonly TimeSpan QueryWaitTimeInSecond = TimeSpan.FromSeconds(3);
         protected static readonly int MaxRetryTimes = 3;
 
@@ -60,7 +61,7 @@ namespace VisionAPI_WPF_Samples
         {
             get
             {
-                return new ApiKeyServiceClientCredentials(mainWindow.ScenarioControl.SubscriptionKey);
+                return new ApiKeyServiceClientCredentials(MainWindow.ScenarioControl.SubscriptionKey);
             }
         }
 
@@ -68,7 +69,7 @@ namespace VisionAPI_WPF_Samples
         {
             get
             {
-                return mainWindow.ScenarioControl.SubscriptionEndpoint;
+                return MainWindow.ScenarioControl.SubscriptionEndpoint;
             }
         }
 
@@ -84,7 +85,7 @@ namespace VisionAPI_WPF_Samples
             try
             {
                 // Clear the log.
-                mainWindow.ScenarioControl.ClearLog();
+                MainWindow.ScenarioControl.ClearLog();
 
                 // Show the image on the GUI.
                 BitmapImage bitmapSource = new BitmapImage();
@@ -135,7 +136,7 @@ namespace VisionAPI_WPF_Samples
         /// <param name="message">The message to log.</param>
         internal void Log(string message)
         {
-           mainWindow.ScenarioControl.Log(message);
+           MainWindow.ScenarioControl.Log(message);
         }
 
         /// <summary>
@@ -153,8 +154,8 @@ namespace VisionAPI_WPF_Samples
             if (result.Metadata != null)
             {
                 Log("Metadata : ");
-                Log("   Image Format : " + result.Metadata.Format);
-                Log("   Image Dimensions : " + result.Metadata.Width + " x " + result.Metadata.Height);
+                Log(Invariant($"   Image Format : {result.Metadata.Format}"));
+                Log(Invariant($"   Image Dimensions : {result.Metadata.Width} x {result.Metadata.Height}"));
             }
 
             if (result.ImageType != null)
@@ -179,7 +180,7 @@ namespace VisionAPI_WPF_Samples
                         clipArtType = "Unknown";
                         break;
                 }
-                Log("   Clip Art Type : " + clipArtType);
+                Log(Invariant($"   Clip Art Type : {clipArtType}"));
 
                 string lineDrawingType;
                 switch (result.ImageType.LineDrawingType)
@@ -194,16 +195,40 @@ namespace VisionAPI_WPF_Samples
                         lineDrawingType = "Unknown";
                         break;
                 }
-                Log("   Line Drawing Type : " + lineDrawingType);
+                Log(Invariant($"   Line Drawing Type : {lineDrawingType}"));
             }
 
             if (result.Adult != null)
             {
                 Log("Adult : ");
-                Log("   Is Adult Content : " + result.Adult.IsAdultContent);
-                Log("   Adult Score : " + result.Adult.AdultScore);
-                Log("   Is Racy Content : " + result.Adult.IsRacyContent);
-                Log("   Racy Score : " + result.Adult.RacyScore);
+                Log(Invariant($"   Is Adult Content : {result.Adult.IsAdultContent}"));
+                Log(Invariant($"   Adult Score      : {result.Adult.AdultScore}"));
+                Log(Invariant($"   Is Racy Content  : {result.Adult.IsRacyContent}"));
+                Log(Invariant($"   Racy Score       : {result.Adult.RacyScore}"));
+            }
+
+            if (result.Brands != null)
+            {
+                Log("Brands : ");
+                foreach (var brand in result.Brands)
+                {
+                    Log(Invariant($"   Brand : {brand.Name}; Confidence : {brand.Confidence}; Bounding Box: {brand.Rectangle.ToReadableString()}"));
+                }
+            }
+
+            if (result.Objects != null)
+            {
+                Log("Objects : ");
+                foreach (var obj in result.Objects)
+                {
+                    Log(Invariant($"   Object : Bounding Box : {obj.Rectangle.ToReadableString()}"));
+                    var detected = new ObjectHierarchy(obj.ObjectProperty, obj.Confidence, obj.Parent);
+                    while (detected != null)
+                    {
+                        Log(Invariant($"      Label : {detected.ObjectProperty}; Confidence : {detected.Confidence}"));
+                        detected = detected.Parent;
+                    }
+                }
             }
 
             if (result.Categories != null && result.Categories.Count > 0)
@@ -211,7 +236,7 @@ namespace VisionAPI_WPF_Samples
                 Log("Categories : ");
                 foreach (var category in result.Categories)
                 {
-                    Log("   Name : " + category.Name + "; Score : " + category.Score);
+                    Log(Invariant($"   Name : {category.Name}; Score : {category.Score}"));
                 }
             }
 
@@ -220,16 +245,16 @@ namespace VisionAPI_WPF_Samples
                 Log("Faces : ");
                 foreach (var face in result.Faces)
                 {
-                    Log("   Age : " + face.Age + "; Gender : " + face.Gender);
+                    Log(Invariant($"   Age : {face.Age}; Gender : {face.Gender}"));
                 }
             }
 
             if (result.Color != null)
             {
                 Log("Color : ");
-                Log("   AccentColor : " + result.Color.AccentColor);
-                Log("   Dominant Color Background : " + result.Color.DominantColorBackground);
-                Log("   Dominant Color Foreground : " + result.Color.DominantColorForeground);
+                Log(Invariant($"   AccentColor : {result.Color.AccentColor}"));
+                Log(Invariant($"   Dominant Color Background : {result.Color.DominantColorBackground}"));
+                Log(Invariant($"   Dominant Color Foreground : {result.Color.DominantColorForeground}"));
 
                 if (result.Color.DominantColors != null && result.Color.DominantColors.Count > 0)
                 {
@@ -247,7 +272,7 @@ namespace VisionAPI_WPF_Samples
                 Log("Description : ");
                 foreach (var caption in result.Description.Captions)
                 {
-                    Log("   Caption : " + caption.Text + "; Confidence : " + caption.Confidence);
+                    Log(Invariant($"   Caption : {caption.Text}; Confidence : {caption.Confidence}"));
                 }
                 string tags = "   Tags : ";
                 foreach (var tag in result.Description.Tags)
@@ -263,7 +288,8 @@ namespace VisionAPI_WPF_Samples
                 Log("Tags : ");
                 foreach (var tag in result.Tags)
                 {
-                    Log("   Name : " + tag.Name + "; Confidence : " + tag.Confidence + ((string.IsNullOrEmpty(tag.Hint) ? "" : ("; Hint : " + tag.Hint))));
+                    var hint = string.IsNullOrEmpty(tag.Hint) ? "" : Invariant($"; Hint : {tag.Hint}");
+                    Log(Invariant($"   Name : {tag.Name}; Confidence : {tag.Confidence}{hint}"));
                 }
             }
         }
@@ -276,13 +302,13 @@ namespace VisionAPI_WPF_Samples
         {
             if (result.Metadata != null)
             {
-                Log("Image Format : " + result.Metadata.Format);
-                Log("Image Dimensions : " + result.Metadata.Width + " x " + result.Metadata.Height);
+                Log(Invariant($"Image Format : {result.Metadata.Format}"));
+                Log(Invariant($"Image Dimensions : {result.Metadata.Width} x {result.Metadata.Height}"));
             }
             
             if (result.Result != null)
             {
-                Log("Result : " + result.Result.ToString());
+                Log(Invariant($"Result : {result.Result.ToString()}"));
             }
         }
 
@@ -386,7 +412,7 @@ namespace VisionAPI_WPF_Samples
             
             if (results.Status == TextOperationStatusCodes.Running || results.Status == TextOperationStatusCodes.NotStarted)
             {
-                Log(string.Format("Status is {0} after try {1} times", results.Status, MaxRetryTimes));
+                Log(Invariant($"Status is {results.Status} after trying {MaxRetryTimes} times"));
             }
         }
     }

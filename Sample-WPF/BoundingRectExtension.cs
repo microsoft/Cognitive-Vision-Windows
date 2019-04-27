@@ -31,43 +31,17 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System.Windows;
-using SampleUserControlLibrary;
+
+using static System.FormattableString;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 
 namespace VisionAPI_WPF_Samples
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml.
-    /// </summary>
-    public partial class MainWindow : Window
+    internal static class BoundingRectExtension
     {
-        public SampleScenarios ScenarioControl
+        internal static string ToReadableString(this BoundingRect boundingBox)
         {
-            get
-            {
-                return _scenariosControl;
-            }
-        }
-
-        public MainWindow()
-        {
-            InitializeComponent();
-
-            //
-            // Initialize SampleScenarios User Control with titles and scenario pages.
-            //
-            _scenariosControl.SampleTitle = "Vision API";
-            _scenariosControl.SampleScenarioList = new Scenario[]
-            {
-                new Scenario { Title = "Analyze Image", PageClass = typeof(AnalyzePage) },
-                new Scenario { Title = "Analyze Image with Domain Model", PageClass = typeof(AnalyzeInDomainPage) },
-                new Scenario { Title = "Describe Image", PageClass = typeof(DescribePage) },
-                new Scenario { Title = "Generate Tags", PageClass = typeof(TagsPage) },
-                new Scenario { Title = "Recognize Text (OCR)", PageClass = typeof(OCRPage) },
-                new Scenario { Title = "Recognize Text V2 (English)", PageClass = typeof(TextRecognitionPage) },
-                new Scenario { Title = "Get Thumbnail", PageClass = typeof(ThumbnailPage) },
-                new Scenario { Title = "Get AreaOfInterest", PageClass = typeof(AreaOfInterestPage) },
-            };
+            return System.FormattableString.Invariant($"[left={boundingBox.X} top={boundingBox.Y} width={boundingBox.W} height={boundingBox.H}]");
         }
     }
 }
