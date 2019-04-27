@@ -24,18 +24,21 @@
                     <ColumnDefinition Width="100"></ColumnDefinition>
                     <ColumnDefinition Width="100"></ColumnDefinition>
                     <ColumnDefinition Width="100"></ColumnDefinition>
+                    <ColumnDefinition Width="100"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"></RowDefinition>
                     <RowDefinition Height="*"></RowDefinition>
                 </Grid.RowDefinitions>
-                <CheckBox x:Name="_categories" Content="Categories" Grid.Row="0" Grid.Column="0" />
-                <CheckBox x:Name="_tags" Content="Tags" Grid.Row="0" Grid.Column="1"/>
-                <CheckBox x:Name="_imageType" Content="ImageType" Grid.Row="0" Grid.Column="2"/>
-                <CheckBox x:Name="_color" Content="Color" Grid.Row="0" Grid.Column="3"/>
-                <CheckBox x:Name="_faces" Content="Faces" Grid.Row="1" Grid.Column="0"/>
-                <CheckBox x:Name="_adult" Content="Adult" Grid.Row="1" Grid.Column="1"/>
-                <CheckBox x:Name="_description" Content="Description" Grid.Row="1" Grid.Column="2"/>
+                <CheckBox Content="Adult" Grid.Row="0" Grid.Column="0"/>
+                <CheckBox Content="Brands" Grid.Row="1" Grid.Column="0" />
+                <CheckBox Content="Categories" Grid.Row="0" Grid.Column="1" />
+                <CheckBox Content="Color" Grid.Row="1" Grid.Column="1"/>
+                <CheckBox Content="Description" Grid.Row="0" Grid.Column="2"/>
+                <CheckBox Content="Faces" Grid.Row="1" Grid.Column="2"/>
+                <CheckBox Content="ImageType" Grid.Row="0" Grid.Column="3"/>
+                <CheckBox Content="Objects" Grid.Row="1" Grid.Column="3"/>
+                <CheckBox Content="Tags" Grid.Row="0" Grid.Column="4"/>
             </Grid>
             <ComboBox x:Name="_language" Margin="5, 5, 0, 5" Width="80" HorizontalAlignment="Left" HorizontalContentAlignment="Left" SelectedIndex="0">
                 <ComboBox.ItemTemplate>
